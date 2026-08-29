@@ -1,0 +1,67 @@
+{
+  "id": "synthetic_pressure",
+  "name": "双引擎合成压力场景",
+  "start_time": 0,
+  "initial_facts": {
+    "power": "off",
+    "prep": "false",
+    "frame": "false",
+    "wiring": "false",
+    "x_installed": "false",
+    "y_installed": "false",
+    "firmware": "false",
+    "a_tested": "false",
+    "b_tested": "false",
+    "quality": "false"
+  },
+  "goal": {
+    "required": {
+      "power": "on",
+      "x_installed": "true",
+      "y_installed": "true",
+      "firmware": "true",
+      "a_tested": "true",
+      "b_tested": "true",
+      "quality": "true"
+    }
+  },
+  "materials": {
+    "firmware_pkg": 20,
+    "module_x": 30,
+    "module_y": 55
+  },
+  "activities": [
+    {"id": "power_on", "name": "上电", "duration": 5, "preconditions": {"power": "off"}, "effects": {"power": "on"}, "max_instances": 2},
+    {"id": "power_off", "name": "下电", "duration": 5, "preconditions": {"power": "on"}, "effects": {"power": "off"}, "max_instances": 1},
+    {"id": "prep_fast", "name": "快速准备", "duration": 15, "preconditions": {"power": "off"}, "effects": {"prep": "true"}},
+    {"id": "prep_slow", "name": "稳健准备", "duration": 25, "preconditions": {"power": "off"}, "effects": {"prep": "true"}},
+    {"id": "frame_install", "name": "安装框架", "duration": 20, "preconditions": {"power": "off", "prep": "true"}, "effects": {"frame": "true"}},
+    {"id": "prep_frame_combo", "name": "准备与框架组合", "duration": 32, "preconditions": {"power": "off"}, "effects": {"prep": "true", "frame": "true"}},
+    {"id": "wiring_fast", "name": "快速布线", "duration": 15, "preconditions": {"power": "off", "frame": "true"}, "effects": {"wiring": "true"}},
+    {"id": "wiring_slow", "name": "稳健布线", "duration": 25, "preconditions": {"power": "off", "frame": "true"}, "effects": {"wiring": "true"}},
+    {"id": "install_x", "name": "安装 X", "duration": 12, "preconditions": {"power": "off", "frame": "true"}, "effects": {"x_installed": "true"}, "material_reqs": ["module_x"]},
+    {"id": "install_y", "name": "安装 Y", "duration": 12, "preconditions": {"power": "off", "wiring": "true"}, "effects": {"y_installed": "true"}, "material_reqs": ["module_y"]},
+    {"id": "install_xy_combo", "name": "组合安装 X/Y", "duration": 20, "preconditions": {"power": "off", "frame": "true", "wiring": "true"}, "effects": {"x_installed": "true", "y_installed": "true"}, "material_reqs": ["module_x", "module_y"]},
+    {"id": "firmware_online", "name": "在线固件加载", "duration": 18, "preconditions": {"power": "on", "wiring": "true"}, "effects": {"firmware": "true"}, "material_reqs": ["firmware_pkg"]},
+    {"id": "firmware_offline", "name": "离线固件加载", "duration": 25, "preconditions": {"power": "off", "wiring": "true"}, "effects": {"firmware": "true"}, "material_reqs": ["firmware_pkg"]},
+    {"id": "test_a", "name": "A 调测", "duration": 20, "preconditions": {"power": "on", "x_installed": "true", "firmware": "true"}, "effects": {"a_tested": "true"}},
+    {"id": "test_b", "name": "B 调测", "duration": 20, "preconditions": {"power": "on", "y_installed": "true", "firmware": "true"}, "effects": {"b_tested": "true"}},
+    {"id": "test_combo", "name": "A/B 组合调测", "duration": 35, "preconditions": {"power": "on", "x_installed": "true", "y_installed": "true", "firmware": "true"}, "effects": {"a_tested": "true", "b_tested": "true"}},
+    {"id": "quality_online", "name": "在线质量检查", "duration": 10, "preconditions": {"power": "on", "a_tested": "true", "b_tested": "true"}, "effects": {"quality": "true"}},
+    {"id": "quality_offline", "name": "离线质量检查", "duration": 16, "preconditions": {"power": "off", "a_tested": "true", "b_tested": "true"}, "effects": {"quality": "true"}},
+    {"id": "inspect_frame", "name": "框架检查", "duration": 8, "preconditions": {"frame": "true"}, "effects": {"inspected": "true"}},
+    {"id": "aux_on", "name": "辅助系统启动", "duration": 6, "preconditions": {"power": "on"}, "effects": {"aux": "on"}},
+    {"id": "aux_off", "name": "辅助系统关闭", "duration": 6, "preconditions": {"aux": "on"}, "effects": {"aux": "off"}},
+    {"id": "calibration", "name": "非目标校准", "duration": 14, "preconditions": {"power": "on"}, "effects": {"calibrated": "true"}},
+    {"id": "rework_prep", "name": "准备返工", "duration": 10, "preconditions": {"prep": "true"}, "effects": {"prep": "false"}},
+    {"id": "cosmetic", "name": "外观处理", "duration": 9, "preconditions": {"frame": "true"}, "effects": {"cosmetic_done": "true"}},
+    {"id": "diagnostics", "name": "附加诊断", "duration": 11, "preconditions": {"power": "on"}, "effects": {"diagnostics_done": "true"}},
+    {"id": "label_x", "name": "X 标签", "duration": 4, "preconditions": {"x_installed": "true"}, "effects": {"x_labelled": "true"}}
+  ],
+  "max_steps": 40,
+  "default_budget": {
+    "time_limit_seconds": 30,
+    "transition_limit": 200000
+  }
+}
+

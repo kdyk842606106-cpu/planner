@@ -1,0 +1,75 @@
+{
+  "id": "module_x",
+  "name": "模块 X 延期黄金场景",
+  "start_time": 0,
+  "initial_facts": {
+    "power": "off",
+    "x_installed": "false",
+    "a_tested": "false",
+    "b_tested": "false"
+  },
+  "goal": {
+    "required": {
+      "power": "on",
+      "x_installed": "true",
+      "a_tested": "true",
+      "b_tested": "true"
+    }
+  },
+  "materials": {
+    "module_x": 45
+  },
+  "activities": [
+    {
+      "id": "power_on",
+      "name": "上电",
+      "duration": 5,
+      "preconditions": {"power": "off"},
+      "effects": {"power": "on"},
+      "max_instances": 2
+    },
+    {
+      "id": "power_off",
+      "name": "下电",
+      "duration": 5,
+      "preconditions": {"power": "on"},
+      "effects": {"power": "off"},
+      "max_instances": 1
+    },
+    {
+      "id": "install_x",
+      "name": "安装模块 X",
+      "duration": 10,
+      "preconditions": {"power": "off"},
+      "effects": {"x_installed": "true"},
+      "material_reqs": ["module_x"],
+      "max_instances": 1
+    },
+    {
+      "id": "test_a",
+      "name": "功能 A 调测",
+      "duration": 30,
+      "preconditions": {"power": "on"},
+      "effects": {"a_tested": "true"},
+      "max_instances": 1
+    },
+    {
+      "id": "test_b",
+      "name": "功能 B 调测",
+      "duration": 30,
+      "preconditions": {"power": "on", "x_installed": "true"},
+      "effects": {"b_tested": "true"},
+      "max_instances": 1
+    }
+  ],
+  "max_steps": 12,
+  "default_budget": {
+    "time_limit_seconds": 5,
+    "transition_limit": 20000
+  },
+  "expected_signatures": [
+    "install_x>power_on>test_a>test_b",
+    "power_on>test_a>power_off>install_x>power_on>test_b"
+  ]
+}
+

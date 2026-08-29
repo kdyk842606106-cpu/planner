@@ -1,0 +1,59 @@
+{
+  "id": "module_x_explicit_transition",
+  "name": "模块 X 显式迁移",
+  "execution_mode": "serial",
+  "start_time": 0,
+  "initial_state_ids": ["state:x_uninstalled", "state:power_off"],
+  "target_activity_ids": ["install_x"],
+  "activities": [
+    {
+      "id": "install_x",
+      "name": "安装 X",
+      "duration": 10,
+      "output_state_id": "state:x_installed",
+      "preconditions": [
+        {"state_id": "state:x_uninstalled", "relation_role": "transition"},
+        {"state_id": "state:power_off", "relation_role": "required"}
+      ]
+    },
+    {
+      "id": "uninstall_x",
+      "name": "拆卸 X",
+      "duration": 10,
+      "output_state_id": "state:x_uninstalled",
+      "preconditions": [
+        {"state_id": "state:x_installed", "relation_role": "transition"},
+        {"state_id": "state:power_off", "relation_role": "required"}
+      ]
+    },
+    {
+      "id": "power_on",
+      "name": "上电",
+      "duration": 5,
+      "output_state_id": "state:power_on",
+      "preconditions": [
+        {"state_id": "state:power_off", "relation_role": "transition"}
+      ]
+    },
+    {
+      "id": "power_off",
+      "name": "下电",
+      "duration": 5,
+      "output_state_id": "state:power_off",
+      "preconditions": [
+        {"state_id": "state:power_on", "relation_role": "transition"}
+      ]
+    },
+    {
+      "id": "inspect_offline",
+      "name": "离线检查",
+      "duration": 3,
+      "is_milestone": true,
+      "preconditions": [
+        {"state_id": "state:power_off", "relation_role": "required"}
+      ]
+    }
+  ],
+  "max_steps": 8,
+  "default_budget": {"time_limit_seconds": 2, "transition_limit": 10000}
+}

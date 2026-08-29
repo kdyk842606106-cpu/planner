@@ -1,0 +1,137 @@
+{
+  "id": "approval_release",
+  "name": "Approval workflow and timed release window",
+  "start_time": 0,
+  "initial_facts": {
+    "workflow": "draft",
+    "access": "locked",
+    "document_prepared": "false",
+    "risk_checked": "false",
+    "legal_incorporated": "false",
+    "approved": "false",
+    "deployed": "false",
+    "presentation_polished": "false",
+    "notes_archived": "false"
+  },
+  "goal": {
+    "required": {
+      "workflow": "review",
+      "access": "locked",
+      "document_prepared": "true",
+      "risk_checked": "true",
+      "legal_incorporated": "true",
+      "approved": "true",
+      "deployed": "true"
+    }
+  },
+  "external_events": [
+    {
+      "id": "legal_feedback",
+      "time": 25,
+      "effects": {"legal_feedback_ready": "true"}
+    },
+    {
+      "id": "release_window",
+      "time": 50,
+      "effects": {"release_window_open": "true"}
+    }
+  ],
+  "activities": [
+    {
+      "id": "prepare_document",
+      "name": "Prepare release document",
+      "duration": 15,
+      "preconditions": {"workflow": "draft", "document_prepared": "false"},
+      "effects": {"document_prepared": "true"}
+    },
+    {
+      "id": "risk_check",
+      "name": "Run risk review",
+      "duration": 20,
+      "preconditions": {"workflow": "draft", "risk_checked": "false"},
+      "effects": {"risk_checked": "true"}
+    },
+    {
+      "id": "incorporate_legal",
+      "name": "Incorporate legal feedback",
+      "duration": 8,
+      "preconditions": {"workflow": "draft", "legal_incorporated": "false"},
+      "effects": {"legal_incorporated": "true"},
+      "event_reqs": ["legal_feedback"]
+    },
+    {
+      "id": "submit_review",
+      "name": "Submit for approval",
+      "duration": 4,
+      "preconditions": {"workflow": "draft"},
+      "effects": {"workflow": "review"},
+      "max_instances": 2
+    },
+    {
+      "id": "return_to_draft",
+      "name": "Return to draft",
+      "duration": 4,
+      "preconditions": {"workflow": "review"},
+      "effects": {"workflow": "draft"},
+      "max_instances": 1
+    },
+    {
+      "id": "approve",
+      "name": "Approve release",
+      "duration": 12,
+      "preconditions": {
+        "workflow": "review",
+        "document_prepared": "true",
+        "risk_checked": "true",
+        "legal_incorporated": "true",
+        "approved": "false"
+      },
+      "effects": {"approved": "true"}
+    },
+    {
+      "id": "unlock_environment",
+      "name": "Unlock deployment environment",
+      "duration": 3,
+      "preconditions": {"access": "locked", "approved": "true"},
+      "effects": {"access": "unlocked"},
+      "max_instances": 2
+    },
+    {
+      "id": "deploy",
+      "name": "Deploy in release window",
+      "duration": 10,
+      "preconditions": {
+        "workflow": "review",
+        "access": "unlocked",
+        "approved": "true",
+        "deployed": "false"
+      },
+      "effects": {"deployed": "true"},
+      "event_reqs": ["release_window"]
+    },
+    {
+      "id": "lock_environment",
+      "name": "Relock deployment environment",
+      "duration": 3,
+      "preconditions": {"access": "unlocked", "deployed": "true"},
+      "effects": {"access": "locked"},
+      "max_instances": 2
+    },
+    {
+      "id": "polish_presentation",
+      "name": "Polish unrelated presentation",
+      "duration": 7,
+      "preconditions": {"presentation_polished": "false"},
+      "effects": {"presentation_polished": "true"}
+    },
+    {
+      "id": "archive_notes",
+      "name": "Archive working notes",
+      "duration": 5,
+      "preconditions": {"notes_archived": "false"},
+      "effects": {"notes_archived": "true"}
+    }
+  ],
+  "max_steps": 18,
+  "default_budget": {"time_limit_seconds": 5, "transition_limit": 50000}
+}

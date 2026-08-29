@@ -1,0 +1,57 @@
+{
+  "id": "generic_modes",
+  "name": "通用模式、夹具与外部事件场景",
+  "start_time": 0,
+  "initial_facts": {
+    "mode": "assembly",
+    "fixture": "general",
+    "prepared": "false",
+    "calibrated": "false",
+    "x_installed": "false",
+    "y_installed": "false",
+    "a_tested": "false",
+    "b_tested": "false",
+    "quality": "false",
+    "inspected": "false",
+    "rework_needed": "false"
+  },
+  "goal": {
+    "required": {
+      "mode": "test",
+      "fixture": "general",
+      "x_installed": "true",
+      "y_installed": "true",
+      "a_tested": "true",
+      "b_tested": "true",
+      "quality": "true"
+    }
+  },
+  "external_events": [
+    {"id": "x_arrival", "time": 30, "effects": {"x_available": "true"}},
+    {"id": "y_arrival", "time": 50, "effects": {"y_available": "true"}}
+  ],
+  "activities": [
+    {"id": "prepare", "name": "准备", "duration": 20, "preconditions": {"mode": "assembly", "prepared": "false"}, "effects": {"prepared": "true"}},
+    {"id": "calibrate", "name": "校准", "duration": 10, "preconditions": {"mode": "assembly", "prepared": "true", "calibrated": "false"}, "effects": {"calibrated": "true"}},
+    {"id": "fixture_special", "name": "切换专用夹具", "duration": 4, "preconditions": {"mode": "assembly", "fixture": "general"}, "effects": {"fixture": "special"}, "max_instances": 2},
+    {"id": "fixture_general", "name": "恢复通用夹具", "duration": 4, "preconditions": {"mode": "assembly", "fixture": "special"}, "effects": {"fixture": "general"}, "max_instances": 2},
+    {"id": "mode_test", "name": "切换测试模式", "duration": 5, "preconditions": {"mode": "assembly", "fixture": "general"}, "effects": {"mode": "test"}, "max_instances": 2},
+    {"id": "mode_assembly", "name": "切换装配模式", "duration": 5, "preconditions": {"mode": "test"}, "effects": {"mode": "assembly"}, "max_instances": 1},
+    {"id": "install_x", "name": "安装 X", "duration": 10, "preconditions": {"mode": "assembly", "fixture": "special", "prepared": "true"}, "effects": {"x_installed": "true"}, "event_reqs": ["x_arrival"]},
+    {"id": "install_y", "name": "安装 Y", "duration": 10, "preconditions": {"mode": "assembly", "fixture": "special", "prepared": "true"}, "effects": {"y_installed": "true"}, "event_reqs": ["y_arrival"]},
+    {"id": "install_combo", "name": "组合安装 X/Y", "duration": 16, "preconditions": {"mode": "assembly", "fixture": "special", "prepared": "true"}, "effects": {"x_installed": "true", "y_installed": "true"}, "event_reqs": ["x_arrival", "y_arrival"]},
+    {"id": "test_a", "name": "测试 A", "duration": 20, "preconditions": {"mode": "test", "calibrated": "true", "x_installed": "true"}, "effects": {"a_tested": "true"}},
+    {"id": "test_b", "name": "测试 B", "duration": 20, "preconditions": {"mode": "test", "calibrated": "true", "y_installed": "true"}, "effects": {"b_tested": "true"}},
+    {"id": "test_combo", "name": "组合测试", "duration": 34, "preconditions": {"mode": "test", "calibrated": "true", "x_installed": "true", "y_installed": "true"}, "effects": {"a_tested": "true", "b_tested": "true"}},
+    {"id": "quality", "name": "质量检查", "duration": 8, "preconditions": {"mode": "test", "fixture": "general", "a_tested": "true", "b_tested": "true"}, "effects": {"quality": "true"}},
+    {"id": "irrelevant_inspection", "name": "无关检查", "duration": 6, "preconditions": {"prepared": "true"}, "effects": {"inspected": "true"}},
+    {"id": "rework_preparation", "name": "准备回退", "duration": 7, "preconditions": {"mode": "assembly", "prepared": "true", "rework_needed": "false"}, "effects": {"prepared": "false", "rework_needed": "true"}},
+    {"id": "restore_preparation", "name": "恢复准备", "duration": 9, "preconditions": {"mode": "assembly", "prepared": "false", "rework_needed": "true"}, "effects": {"prepared": "true", "rework_needed": "false"}}
+  ],
+  "max_steps": 20,
+  "default_budget": {"time_limit_seconds": 5, "transition_limit": 50000},
+  "expected_signatures": [
+    "prepare>fixture_special>install_x>calibrate>install_y>fixture_general>mode_test>test_combo>quality",
+    "prepare>fixture_special>calibrate>install_combo>fixture_general>mode_test>test_combo>quality"
+  ]
+}

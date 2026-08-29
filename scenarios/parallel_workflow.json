@@ -1,0 +1,71 @@
+{
+  "id": "parallel_workflow",
+  "name": "并行测试与集成工作流",
+  "execution_mode": "parallel",
+  "start_time": 0,
+  "initial_facts": {
+    "prepared": "false",
+    "a_tested": "false",
+    "b_tested": "false",
+    "inspected": "false",
+    "integrated": "false"
+  },
+  "goal": {
+    "required": {
+      "integrated": "true"
+    }
+  },
+  "resources": [
+    {"id": "engineer", "capacity": 2},
+    {"id": "bench", "capacity": 1}
+  ],
+  "activities": [
+    {
+      "id": "prepare",
+      "name": "准备",
+      "duration": 10,
+      "preconditions": {"prepared": "false"},
+      "effects": {"prepared": "true"}
+    },
+    {
+      "id": "test_a",
+      "name": "A 测试",
+      "duration": 30,
+      "preconditions": {"prepared": "true"},
+      "effects": {"a_tested": "true"},
+      "resource_reqs": {"engineer": 1}
+    },
+    {
+      "id": "test_b",
+      "name": "B 测试",
+      "duration": 20,
+      "preconditions": {"prepared": "true"},
+      "effects": {"b_tested": "true"},
+      "resource_reqs": {"engineer": 1}
+    },
+    {
+      "id": "inspection",
+      "name": "检查",
+      "duration": 15,
+      "preconditions": {"prepared": "true"},
+      "effects": {"inspected": "true"},
+      "resource_reqs": {"bench": 1}
+    },
+    {
+      "id": "integrate",
+      "name": "集成",
+      "duration": 10,
+      "preconditions": {
+        "a_tested": "true",
+        "b_tested": "true",
+        "inspected": "true"
+      },
+      "effects": {"integrated": "true"}
+    }
+  ],
+  "max_steps": 8,
+  "default_budget": {
+    "time_limit_seconds": 5,
+    "transition_limit": 50000
+  }
+}

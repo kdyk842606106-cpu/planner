@@ -1,0 +1,37 @@
+{
+  "id": "parallel_pressure",
+  "name": "并行分支与资源压力场景",
+  "execution_mode": "parallel",
+  "initial_facts": {
+    "ready": "false",
+    "a": "false", "b": "false", "c": "false",
+    "d": "false", "e": "false", "f": "false",
+    "left": "false", "right": "false", "done": "false",
+    "noise1": "false", "noise2": "false", "noise3": "false"
+  },
+  "goal": {"required": {"done": "true"}},
+  "external_events": [
+    {"id": "approval", "time": 10, "effects": {}}
+  ],
+  "resources": [
+    {"id": "engineer", "capacity": 3},
+    {"id": "bench", "capacity": 2}
+  ],
+  "activities": [
+    {"id": "kickoff", "duration": 5, "preconditions": {"ready": "false"}, "effects": {"ready": "true"}},
+    {"id": "work_a", "duration": 25, "preconditions": {"ready": "true"}, "effects": {"a": "true"}, "resource_reqs": {"engineer": 1}},
+    {"id": "work_b", "duration": 20, "preconditions": {"ready": "true"}, "effects": {"b": "true"}, "resource_reqs": {"engineer": 1}},
+    {"id": "work_c", "duration": 15, "preconditions": {"ready": "true"}, "effects": {"c": "true"}, "resource_reqs": {"engineer": 1}},
+    {"id": "work_d", "duration": 18, "preconditions": {"ready": "true"}, "effects": {"d": "true"}, "resource_reqs": {"bench": 1}},
+    {"id": "work_e", "duration": 16, "preconditions": {"ready": "true"}, "event_reqs": ["approval"], "effects": {"e": "true"}, "resource_reqs": {"bench": 1}},
+    {"id": "work_f", "duration": 12, "preconditions": {"ready": "true"}, "event_reqs": ["approval"], "effects": {"f": "true"}, "resource_reqs": {"bench": 1}},
+    {"id": "merge_left", "duration": 8, "preconditions": {"a": "true", "b": "true", "c": "true"}, "effects": {"left": "true"}, "resource_reqs": {"engineer": 1}},
+    {"id": "merge_right", "duration": 8, "preconditions": {"d": "true", "e": "true", "f": "true"}, "effects": {"right": "true"}, "resource_reqs": {"bench": 1}},
+    {"id": "finish", "duration": 10, "preconditions": {"left": "true", "right": "true"}, "effects": {"done": "true"}},
+    {"id": "noise_check_1", "duration": 7, "preconditions": {"ready": "true"}, "effects": {"noise1": "true"}, "resource_reqs": {"engineer": 1}},
+    {"id": "noise_check_2", "duration": 9, "preconditions": {"ready": "true"}, "effects": {"noise2": "true"}, "resource_reqs": {"bench": 1}},
+    {"id": "noise_check_3", "duration": 11, "preconditions": {"ready": "true"}, "effects": {"noise3": "true"}}
+  ],
+  "max_steps": 16,
+  "default_budget": {"time_limit_seconds": 8, "transition_limit": 100000}
+}

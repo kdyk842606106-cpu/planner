@@ -1,0 +1,165 @@
+{
+  "id": "thermal_validation",
+  "name": "Thermal chamber validation workflow",
+  "start_time": 0,
+  "initial_facts": {
+    "chamber": "ambient",
+    "prepared": "false",
+    "calibrated": "false",
+    "specimen_installed": "false",
+    "hot_tested": "false",
+    "cold_tested": "false",
+    "report_compiled": "false",
+    "quality": "false",
+    "visual_checked": "false",
+    "labels_checked": "false"
+  },
+  "goal": {
+    "required": {
+      "chamber": "ambient",
+      "prepared": "true",
+      "calibrated": "true",
+      "specimen_installed": "true",
+      "hot_tested": "true",
+      "cold_tested": "true",
+      "report_compiled": "true",
+      "quality": "true"
+    }
+  },
+  "external_events": [
+    {
+      "id": "specimen_arrival",
+      "time": 20,
+      "effects": {"specimen_available": "true"}
+    },
+    {
+      "id": "lab_authorization",
+      "time": 55,
+      "effects": {"lab_authorized": "true"}
+    }
+  ],
+  "activities": [
+    {
+      "id": "prepare_rig",
+      "name": "Prepare validation rig",
+      "duration": 15,
+      "preconditions": {"chamber": "ambient", "prepared": "false"},
+      "effects": {"prepared": "true"}
+    },
+    {
+      "id": "calibrate_sensor",
+      "name": "Calibrate sensors",
+      "duration": 10,
+      "preconditions": {"chamber": "ambient", "prepared": "true", "calibrated": "false"},
+      "effects": {"calibrated": "true"}
+    },
+    {
+      "id": "install_specimen",
+      "name": "Install specimen",
+      "duration": 5,
+      "preconditions": {"chamber": "ambient", "prepared": "true", "specimen_installed": "false"},
+      "effects": {"specimen_installed": "true"},
+      "event_reqs": ["specimen_arrival"]
+    },
+    {
+      "id": "heat_up",
+      "name": "Move chamber to hot",
+      "duration": 8,
+      "preconditions": {"chamber": "ambient"},
+      "effects": {"chamber": "hot"},
+      "max_instances": 2
+    },
+    {
+      "id": "cool_to_ambient",
+      "name": "Cool hot chamber to ambient",
+      "duration": 8,
+      "preconditions": {"chamber": "hot"},
+      "effects": {"chamber": "ambient"},
+      "max_instances": 2
+    },
+    {
+      "id": "chill_down",
+      "name": "Move chamber to cold",
+      "duration": 10,
+      "preconditions": {"chamber": "ambient"},
+      "effects": {"chamber": "cold"},
+      "max_instances": 2
+    },
+    {
+      "id": "warm_to_ambient",
+      "name": "Warm cold chamber to ambient",
+      "duration": 10,
+      "preconditions": {"chamber": "cold"},
+      "effects": {"chamber": "ambient"},
+      "max_instances": 2
+    },
+    {
+      "id": "hot_test",
+      "name": "Run hot validation",
+      "duration": 18,
+      "preconditions": {
+        "chamber": "hot",
+        "calibrated": "true",
+        "specimen_installed": "true",
+        "hot_tested": "false"
+      },
+      "effects": {"hot_tested": "true"}
+    },
+    {
+      "id": "cold_test",
+      "name": "Run cold validation",
+      "duration": 18,
+      "preconditions": {
+        "chamber": "cold",
+        "calibrated": "true",
+        "specimen_installed": "true",
+        "cold_tested": "false"
+      },
+      "effects": {"cold_tested": "true"}
+    },
+    {
+      "id": "combined_climate_test",
+      "name": "Run authorized combined climate cycle",
+      "duration": 35,
+      "preconditions": {
+        "chamber": "ambient",
+        "calibrated": "true",
+        "specimen_installed": "true",
+        "hot_tested": "false",
+        "cold_tested": "false"
+      },
+      "effects": {"hot_tested": "true", "cold_tested": "true"},
+      "event_reqs": ["lab_authorization"]
+    },
+    {
+      "id": "compile_report",
+      "name": "Compile validation report",
+      "duration": 10,
+      "preconditions": {"chamber": "ambient", "hot_tested": "true", "cold_tested": "true"},
+      "effects": {"report_compiled": "true"}
+    },
+    {
+      "id": "quality_review",
+      "name": "Review validation quality",
+      "duration": 5,
+      "preconditions": {"chamber": "ambient", "report_compiled": "true"},
+      "effects": {"quality": "true"}
+    },
+    {
+      "id": "visual_check",
+      "name": "Run unrelated visual check",
+      "duration": 6,
+      "preconditions": {"prepared": "true", "visual_checked": "false"},
+      "effects": {"visual_checked": "true"}
+    },
+    {
+      "id": "label_check",
+      "name": "Run unrelated label check",
+      "duration": 4,
+      "preconditions": {"labels_checked": "false"},
+      "effects": {"labels_checked": "true"}
+    }
+  ],
+  "max_steps": 22,
+  "default_budget": {"time_limit_seconds": 5, "transition_limit": 50000}
+}

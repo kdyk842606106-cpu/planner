@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+runs/
+.docx-qa/
+.pytest_cache/
+.pptx_build/
+outputs/
+tmp/
+.venv/
+venv/
+.env
+.env.*
+*.inspect.ndjson
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,386 @@
+{
+  "id": "equipment_assembly_late_material_parallel",
+  "name": "设备装配晚料、资源瓶颈与并行测试案例",
+  "execution_mode": "parallel",
+  "start_time": 0,
+  "initial_facts": {
+    "A01_done": "false",
+    "A02_done": "false",
+    "A03_done": "false",
+    "A04_done": "false",
+    "A05_done": "false",
+    "A06_done": "false",
+    "A07_done": "false",
+    "A08_done": "false",
+    "A09_done": "false",
+    "A10_done": "false",
+    "A11_done": "false",
+    "A12_done": "false",
+    "A13_done": "false",
+    "A14_done": "false",
+    "A15_done": "false",
+    "A16_done": "false",
+    "A17_done": "false",
+    "A18_done": "false",
+    "A19_done": "false",
+    "A20_done": "false",
+    "A21_done": "false",
+    "A22_done": "false",
+    "A23_done": "false",
+    "A24_done": "false",
+    "A25_done": "false",
+    "A26_done": "false",
+    "A27_done": "false",
+    "A28_done": "false",
+    "A29_done": "false",
+    "A30_done": "false",
+    "A31_done": "false",
+    "A32_done": "false",
+    "A33_done": "false",
+    "A34_done": "false",
+    "A35_done": "false",
+    "A36_done": "false"
+  },
+  "goal": {
+    "required": {
+      "A36_done": "true"
+    }
+  },
+  "materials": {
+    "base_frame": 60,
+    "column_set": 130,
+    "guide_rail": 250,
+    "electrical_cabinet": 320,
+    "x_drive_module": 340,
+    "y_drive_module": 340,
+    "vacuum_kit": 360,
+    "control_firmware": 400,
+    "sensor_pack": 430
+  },
+  "resources": [
+    {"id": "PROCESS_ENGINEER", "capacity": 1},
+    {"id": "SAFETY_OFFICER", "capacity": 1},
+    {"id": "LOGISTICS", "capacity": 1},
+    {"id": "MECH_TEAM", "capacity": 2},
+    {"id": "OVERHEAD_CRANE", "capacity": 1},
+    {"id": "METROLOGY", "capacity": 1},
+    {"id": "PRECISION_RIG", "capacity": 1},
+    {"id": "ELECTRICAL", "capacity": 1},
+    {"id": "PIPE_TEAM", "capacity": 1},
+    {"id": "CONTROL", "capacity": 1},
+    {"id": "QA", "capacity": 1},
+    {"id": "TEST_BENCH", "capacity": 1}
+  ],
+  "activities": [
+    {
+      "id": "A01",
+      "name": "工单确认",
+      "duration": 10,
+      "preconditions": {},
+      "effects": {"A01_done": "true"},
+      "resource_reqs": {"PROCESS_ENGINEER": 1}
+    },
+    {
+      "id": "A02",
+      "name": "安全隔离",
+      "duration": 15,
+      "preconditions": {"A01_done": "true"},
+      "effects": {"A02_done": "true"},
+      "resource_reqs": {"SAFETY_OFFICER": 1}
+    },
+    {
+      "id": "A03",
+      "name": "收货区准备",
+      "duration": 15,
+      "preconditions": {"A01_done": "true"},
+      "effects": {"A03_done": "true"},
+      "resource_reqs": {"LOGISTICS": 1}
+    },
+    {
+      "id": "A04",
+      "name": "工装点检",
+      "duration": 20,
+      "preconditions": {"A01_done": "true"},
+      "effects": {"A04_done": "true"},
+      "resource_reqs": {"MECH_TEAM": 1}
+    },
+    {
+      "id": "A05",
+      "name": "测量基准复核",
+      "duration": 20,
+      "preconditions": {"A01_done": "true"},
+      "effects": {"A05_done": "true"},
+      "resource_reqs": {"METROLOGY": 1}
+    },
+    {
+      "id": "A06",
+      "name": "控制基线准备",
+      "duration": 25,
+      "preconditions": {"A01_done": "true"},
+      "effects": {"A06_done": "true"},
+      "resource_reqs": {"CONTROL": 1}
+    },
+    {
+      "id": "A07",
+      "name": "基础面清理",
+      "duration": 20,
+      "preconditions": {"A02_done": "true", "A03_done": "true"},
+      "effects": {"A07_done": "true"},
+      "resource_reqs": {"MECH_TEAM": 1}
+    },
+    {
+      "id": "A08",
+      "name": "底座来料复检",
+      "duration": 20,
+      "preconditions": {"A04_done": "true", "A05_done": "true"},
+      "effects": {"A08_done": "true"},
+      "material_reqs": ["base_frame"],
+      "resource_reqs": {"QA": 1}
+    },
+    {
+      "id": "A09",
+      "name": "安装基准标定",
+      "duration": 20,
+      "preconditions": {"A05_done": "true", "A07_done": "true"},
+      "effects": {"A09_done": "true"},
+      "resource_reqs": {"METROLOGY": 1}
+    },
+    {
+      "id": "A10",
+      "name": "底座安装",
+      "duration": 35,
+      "preconditions": {"A08_done": "true", "A09_done": "true"},
+      "effects": {"A10_done": "true"},
+      "material_reqs": ["base_frame"],
+      "resource_reqs": {"MECH_TEAM": 2, "OVERHEAD_CRANE": 1}
+    },
+    {
+      "id": "A11",
+      "name": "左立柱安装",
+      "duration": 30,
+      "preconditions": {"A10_done": "true"},
+      "effects": {"A11_done": "true"},
+      "material_reqs": ["column_set"],
+      "resource_reqs": {"MECH_TEAM": 1}
+    },
+    {
+      "id": "A12",
+      "name": "右立柱安装",
+      "duration": 30,
+      "preconditions": {"A10_done": "true"},
+      "effects": {"A12_done": "true"},
+      "material_reqs": ["column_set"],
+      "resource_reqs": {"MECH_TEAM": 1}
+    },
+    {
+      "id": "A13",
+      "name": "左立柱校准",
+      "duration": 20,
+      "preconditions": {"A11_done": "true"},
+      "effects": {"A13_done": "true"},
+      "resource_reqs": {"METROLOGY": 1, "PRECISION_RIG": 1}
+    },
+    {
+      "id": "A14",
+      "name": "右立柱校准",
+      "duration": 20,
+      "preconditions": {"A12_done": "true"},
+      "effects": {"A14_done": "true"},
+      "resource_reqs": {"METROLOGY": 1, "PRECISION_RIG": 1}
+    },
+    {
+      "id": "A15",
+      "name": "横梁安装",
+      "duration": 30,
+      "preconditions": {"A13_done": "true", "A14_done": "true"},
+      "effects": {"A15_done": "true"},
+      "resource_reqs": {"MECH_TEAM": 2, "OVERHEAD_CRANE": 1}
+    },
+    {
+      "id": "A16",
+      "name": "导轨安装",
+      "duration": 35,
+      "preconditions": {"A15_done": "true"},
+      "effects": {"A16_done": "true"},
+      "material_reqs": ["guide_rail"],
+      "resource_reqs": {"MECH_TEAM": 1, "OVERHEAD_CRANE": 1}
+    },
+    {
+      "id": "A17",
+      "name": "结构检查",
+      "duration": 20,
+      "preconditions": {"A16_done": "true"},
+      "effects": {"A17_done": "true"},
+      "resource_reqs": {"QA": 1}
+    },
+    {
+      "id": "A18",
+      "name": "X 驱动安装",
+      "duration": 35,
+      "preconditions": {"A17_done": "true"},
+      "effects": {"A18_done": "true"},
+      "material_reqs": ["x_drive_module"],
+      "resource_reqs": {"MECH_TEAM": 1, "OVERHEAD_CRANE": 1}
+    },
+    {
+      "id": "A19",
+      "name": "Y 驱动安装",
+      "duration": 35,
+      "preconditions": {"A17_done": "true"},
+      "effects": {"A19_done": "true"},
+      "material_reqs": ["y_drive_module"],
+      "resource_reqs": {"MECH_TEAM": 1, "OVERHEAD_CRANE": 1}
+    },
+    {
+      "id": "A20",
+      "name": "X 轴校准",
+      "duration": 25,
+      "preconditions": {"A18_done": "true"},
+      "effects": {"A20_done": "true"},
+      "resource_reqs": {"METROLOGY": 1, "PRECISION_RIG": 1}
+    },
+    {
+      "id": "A21",
+      "name": "Y 轴校准",
+      "duration": 25,
+      "preconditions": {"A19_done": "true"},
+      "effects": {"A21_done": "true"},
+      "resource_reqs": {"METROLOGY": 1, "PRECISION_RIG": 1}
+    },
+    {
+      "id": "A22",
+      "name": "电控柜安装",
+      "duration": 30,
+      "preconditions": {"A17_done": "true"},
+      "effects": {"A22_done": "true"},
+      "material_reqs": ["electrical_cabinet"],
+      "resource_reqs": {"ELECTRICAL": 1, "OVERHEAD_CRANE": 1}
+    },
+    {
+      "id": "A23",
+      "name": "主电缆敷设",
+      "duration": 35,
+      "preconditions": {"A22_done": "true"},
+      "effects": {"A23_done": "true"},
+      "resource_reqs": {"ELECTRICAL": 1}
+    },
+    {
+      "id": "A24",
+      "name": "真空歧管安装",
+      "duration": 30,
+      "preconditions": {"A17_done": "true"},
+      "effects": {"A24_done": "true"},
+      "material_reqs": ["vacuum_kit"],
+      "resource_reqs": {"PIPE_TEAM": 1}
+    },
+    {
+      "id": "A25",
+      "name": "真空管路连接",
+      "duration": 90,
+      "preconditions": {"A24_done": "true"},
+      "effects": {"A25_done": "true"},
+      "resource_reqs": {"PIPE_TEAM": 1}
+    },
+    {
+      "id": "A26",
+      "name": "传感器安装",
+      "duration": 30,
+      "preconditions": {"A18_done": "true", "A19_done": "true"},
+      "effects": {"A26_done": "true"},
+      "material_reqs": ["sensor_pack"],
+      "resource_reqs": {"ELECTRICAL": 1}
+    },
+    {
+      "id": "A27",
+      "name": "传感器接线",
+      "duration": 35,
+      "preconditions": {"A23_done": "true", "A26_done": "true"},
+      "effects": {"A27_done": "true"},
+      "resource_reqs": {"ELECTRICAL": 1}
+    },
+    {
+      "id": "A28",
+      "name": "控制软件加载",
+      "duration": 25,
+      "preconditions": {"A06_done": "true", "A22_done": "true"},
+      "effects": {"A28_done": "true"},
+      "material_reqs": ["control_firmware"],
+      "resource_reqs": {"CONTROL": 1}
+    },
+    {
+      "id": "A29",
+      "name": "I/O 点检",
+      "duration": 30,
+      "preconditions": {"A27_done": "true", "A28_done": "true"},
+      "effects": {"A29_done": "true"},
+      "resource_reqs": {"CONTROL": 1}
+    },
+    {
+      "id": "A30",
+      "name": "泄漏检查",
+      "duration": 25,
+      "preconditions": {"A25_done": "true"},
+      "effects": {"A30_done": "true"},
+      "resource_reqs": {"QA": 1}
+    },
+    {
+      "id": "A31",
+      "name": "回零测试",
+      "duration": 30,
+      "preconditions": {"A20_done": "true", "A21_done": "true", "A29_done": "true"},
+      "effects": {"A31_done": "true"},
+      "resource_reqs": {"CONTROL": 1, "TEST_BENCH": 1}
+    },
+    {
+      "id": "A32",
+      "name": "单轴测试",
+      "duration": 35,
+      "preconditions": {"A30_done": "true", "A31_done": "true"},
+      "effects": {"A32_done": "true"},
+      "resource_reqs": {"CONTROL": 1, "TEST_BENCH": 1}
+    },
+    {
+      "id": "A33",
+      "name": "真空功能测试",
+      "duration": 30,
+      "preconditions": {"A29_done": "true", "A30_done": "true"},
+      "effects": {"A33_done": "true"},
+      "resource_reqs": {"CONTROL": 1, "TEST_BENCH": 1}
+    },
+    {
+      "id": "A34",
+      "name": "综合循环测试",
+      "duration": 45,
+      "preconditions": {"A32_done": "true", "A33_done": "true"},
+      "effects": {"A34_done": "true"},
+      "resource_reqs": {"CONTROL": 1, "TEST_BENCH": 1}
+    },
+    {
+      "id": "A35",
+      "name": "质量评审",
+      "duration": 20,
+      "preconditions": {"A17_done": "true", "A34_done": "true"},
+      "effects": {"A35_done": "true"},
+      "resource_reqs": {"QA": 1}
+    },
+    {
+      "id": "A36",
+      "name": "最终验收",
+      "duration": 15,
+      "preconditions": {"A35_done": "true"},
+      "effects": {"A36_done": "true"},
+      "resource_reqs": {"PROCESS_ENGINEER": 1, "QA": 1}
+    }
+  ],
+  "max_steps": 36,
+  "default_budget": {
+    "time_limit_seconds": 30,
+    "transition_limit": 500000
+  },
+  "provenance": {
+    "case_intent": "验证物料晚到、容量资源瓶颈和并行活动的组合排程",
+    "expected_overlap_pairs": "A02+A03,A04+A05,A11+A12,A18+A23,A23+A24,A29+A30",
+    "expected_non_overlap_pairs": "A13+A14,A18+A19,A31+A33,A32+A33",
+    "time_unit": "minute"
+  }
+}

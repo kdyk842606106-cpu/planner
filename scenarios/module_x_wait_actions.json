@@ -1,0 +1,8 @@
+[
+  {"kind": "WAIT", "target_time": 45},
+  {"kind": "EXECUTE", "activity_id": "install_x"},
+  {"kind": "EXECUTE", "activity_id": "power_on"},
+  {"kind": "EXECUTE", "activity_id": "test_a"},
+  {"kind": "EXECUTE", "activity_id": "test_b"}
+]
+

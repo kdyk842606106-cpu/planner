@@ -1,0 +1,920 @@
+{
+  "activities": [
+    {
+      "duration": 10,
+      "effects": {
+        "mi_hp_mi_a001_done": "true"
+      },
+      "id": "MI_A001",
+      "max_instances": 1,
+      "name": "确认工单与版本",
+      "preconditions": {},
+      "resource_reqs": {
+        "PROCESS_ENGINEER": 1
+      },
+      "source_metadata": {
+        "effect_name": "工单已确认",
+        "package_code": "MI_HP_PREP_ACT",
+        "responsible_subsystem": "PREPARATION",
+        "source_order": 1
+      }
+    },
+    {
+      "duration": 15,
+      "effects": {
+        "mi_hp_mi_a002_done": "true"
+      },
+      "id": "MI_A002",
+      "max_instances": 1,
+      "name": "执行断电挂牌",
+      "preconditions": {
+        "mi_hp_mi_a001_done": "true"
+      },
+      "resource_reqs": {
+        "SAFETY_OFFICER": 1
+      },
+      "source_metadata": {
+        "effect_name": "安全隔离完成",
+        "package_code": "MI_HP_PREP_ACT",
+        "responsible_subsystem": "PREPARATION",
+        "source_order": 2
+      }
+    },
+    {
+      "duration": 20,
+      "effects": {
+        "mi_hp_mi_a003_done": "true"
+      },
+      "id": "MI_A003",
+      "max_instances": 1,
+      "name": "清点机械物料",
+      "preconditions": {
+        "mi_hp_mi_a001_done": "true"
+      },
+      "resource_reqs": {
+        "LOGISTICS": 1
+      },
+      "source_metadata": {
+        "effect_name": "机械物料齐套",
+        "package_code": "MI_HP_PREP_ACT",
+        "responsible_subsystem": "PREPARATION",
+        "source_order": 3
+      }
+    },
+    {
+      "duration": 15,
+      "effects": {
+        "mi_hp_mi_a004_done": "true"
+      },
+      "id": "MI_A004",
+      "max_instances": 1,
+      "name": "校验安装工具",
+      "preconditions": {
+        "mi_hp_mi_a001_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_A": 1
+      },
+      "source_metadata": {
+        "effect_name": "工具可用",
+        "package_code": "MI_HP_PREP_ACT",
+        "responsible_subsystem": "PREPARATION",
+        "source_order": 4
+      }
+    },
+    {
+      "duration": 15,
+      "effects": {
+        "mi_hp_mi_a005_done": "true"
+      },
+      "id": "MI_A005",
+      "max_instances": 1,
+      "name": "复核测量基准",
+      "preconditions": {
+        "mi_hp_mi_a001_done": "true"
+      },
+      "resource_reqs": {
+        "METROLOGY": 1
+      },
+      "source_metadata": {
+        "effect_name": "测量基准可用",
+        "package_code": "MI_HP_PREP_ACT",
+        "responsible_subsystem": "PREPARATION",
+        "source_order": 5
+      }
+    },
+    {
+      "duration": 20,
+      "effects": {
+        "mi_hp_mi_a006_done": "true"
+      },
+      "id": "MI_A006",
+      "max_instances": 1,
+      "name": "加载控制基线",
+      "preconditions": {
+        "mi_hp_mi_a001_done": "true"
+      },
+      "resource_reqs": {
+        "CONTROL": 1
+      },
+      "source_metadata": {
+        "effect_name": "控制基线就绪",
+        "package_code": "MI_HP_PREP_ACT",
+        "responsible_subsystem": "PREPARATION",
+        "source_order": 6
+      }
+    },
+    {
+      "duration": 20,
+      "effects": {
+        "mi_hp_mi_a007_done": "true"
+      },
+      "id": "MI_A007",
+      "max_instances": 1,
+      "name": "清洁安装基准面",
+      "preconditions": {
+        "mi_hp_mi_a002_done": "true",
+        "mi_hp_mi_a004_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_A": 1
+      },
+      "source_metadata": {
+        "effect_name": "基准面洁净",
+        "package_code": "MI_HP_PREP_ACT",
+        "responsible_subsystem": "PREPARATION",
+        "source_order": 7
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a008_done": "true"
+      },
+      "id": "MI_A008",
+      "max_instances": 1,
+      "name": "关键件来料复检",
+      "preconditions": {
+        "mi_hp_mi_a003_done": "true",
+        "mi_hp_mi_a005_done": "true"
+      },
+      "resource_reqs": {
+        "QA": 1
+      },
+      "source_metadata": {
+        "effect_name": "关键件合格",
+        "package_code": "MI_HP_PREP_ACT",
+        "responsible_subsystem": "PREPARATION",
+        "source_order": 8
+      }
+    },
+    {
+      "duration": 20,
+      "effects": {
+        "mi_hp_mi_a009_done": "true"
+      },
+      "id": "MI_A009",
+      "max_instances": 1,
+      "name": "标定安装基准线",
+      "preconditions": {
+        "mi_hp_mi_a005_done": "true",
+        "mi_hp_mi_a007_done": "true"
+      },
+      "resource_reqs": {
+        "METROLOGY": 1
+      },
+      "source_metadata": {
+        "effect_name": "基准线完成",
+        "package_code": "MI_HP_STRUCTURE_ACT",
+        "responsible_subsystem": "STRUCTURE",
+        "source_order": 9
+      }
+    },
+    {
+      "duration": 30,
+      "effects": {
+        "mi_hp_mi_a010_done": "true"
+      },
+      "id": "MI_A010",
+      "max_instances": 1,
+      "name": "安装底座框架",
+      "preconditions": {
+        "mi_hp_mi_a008_done": "true",
+        "mi_hp_mi_a009_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_A": 1,
+        "OVERHEAD_CRANE": 1
+      },
+      "source_metadata": {
+        "effect_name": "底座已安装",
+        "package_code": "MI_HP_STRUCTURE_ACT",
+        "responsible_subsystem": "STRUCTURE",
+        "source_order": 10
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a011_done": "true"
+      },
+      "id": "MI_A011",
+      "max_instances": 1,
+      "name": "安装左侧立柱",
+      "preconditions": {
+        "mi_hp_mi_a010_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_A": 1
+      },
+      "source_metadata": {
+        "effect_name": "左立柱已安装",
+        "package_code": "MI_HP_STRUCTURE_ACT",
+        "responsible_subsystem": "STRUCTURE",
+        "source_order": 11
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a012_done": "true"
+      },
+      "id": "MI_A012",
+      "max_instances": 1,
+      "name": "安装右侧立柱",
+      "preconditions": {
+        "mi_hp_mi_a010_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_B": 1
+      },
+      "source_metadata": {
+        "effect_name": "右立柱已安装",
+        "package_code": "MI_HP_STRUCTURE_ACT",
+        "responsible_subsystem": "STRUCTURE",
+        "source_order": 12
+      }
+    },
+    {
+      "duration": 20,
+      "effects": {
+        "mi_hp_mi_a013_done": "true"
+      },
+      "id": "MI_A013",
+      "max_instances": 1,
+      "name": "校正左侧立柱",
+      "preconditions": {
+        "mi_hp_mi_a011_done": "true"
+      },
+      "resource_reqs": {
+        "METROLOGY": 1,
+        "PRECISION_RIG": 1
+      },
+      "source_metadata": {
+        "effect_name": "左立柱合格",
+        "package_code": "MI_HP_STRUCTURE_ACT",
+        "responsible_subsystem": "STRUCTURE",
+        "source_order": 13
+      }
+    },
+    {
+      "duration": 20,
+      "effects": {
+        "mi_hp_mi_a014_done": "true"
+      },
+      "id": "MI_A014",
+      "max_instances": 1,
+      "name": "校正右侧立柱",
+      "preconditions": {
+        "mi_hp_mi_a012_done": "true"
+      },
+      "resource_reqs": {
+        "METROLOGY": 1,
+        "PRECISION_RIG": 1
+      },
+      "source_metadata": {
+        "effect_name": "右立柱合格",
+        "package_code": "MI_HP_STRUCTURE_ACT",
+        "responsible_subsystem": "STRUCTURE",
+        "source_order": 14
+      }
+    },
+    {
+      "duration": 30,
+      "effects": {
+        "mi_hp_mi_a015_done": "true"
+      },
+      "id": "MI_A015",
+      "max_instances": 1,
+      "name": "安装横梁组件",
+      "preconditions": {
+        "mi_hp_mi_a013_done": "true",
+        "mi_hp_mi_a014_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_A": 1,
+        "OVERHEAD_CRANE": 1
+      },
+      "source_metadata": {
+        "effect_name": "横梁已安装",
+        "package_code": "MI_HP_STRUCTURE_ACT",
+        "responsible_subsystem": "STRUCTURE",
+        "source_order": 15
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a016_done": "true"
+      },
+      "id": "MI_A016",
+      "max_instances": 1,
+      "name": "调整导轨直线度",
+      "preconditions": {
+        "mi_hp_mi_a015_done": "true"
+      },
+      "resource_reqs": {
+        "METROLOGY": 1,
+        "PRECISION_RIG": 1
+      },
+      "source_metadata": {
+        "effect_name": "导轨直线度合格",
+        "package_code": "MI_HP_STRUCTURE_ACT",
+        "responsible_subsystem": "STRUCTURE",
+        "source_order": 16
+      }
+    },
+    {
+      "duration": 15,
+      "effects": {
+        "mi_hp_mi_a017_done": "true"
+      },
+      "id": "MI_A017",
+      "max_instances": 1,
+      "name": "锁紧结构连接件",
+      "preconditions": {
+        "mi_hp_mi_a016_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_B": 1
+      },
+      "source_metadata": {
+        "effect_name": "结构装配完成",
+        "package_code": "MI_HP_STRUCTURE_ACT",
+        "responsible_subsystem": "STRUCTURE",
+        "source_order": 17
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a018_done": "true"
+      },
+      "id": "MI_A018",
+      "max_instances": 1,
+      "name": "安装大气臂基座",
+      "preconditions": {
+        "mi_hp_mi_a017_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_A": 1
+      },
+      "source_metadata": {
+        "effect_name": "大气臂基座已安装",
+        "package_code": "MI_HP_TRANSFER_ACT",
+        "responsible_subsystem": "TRANSFER",
+        "source_order": 18
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a019_done": "true"
+      },
+      "id": "MI_A019",
+      "max_instances": 1,
+      "name": "安装真空臂基座",
+      "preconditions": {
+        "mi_hp_mi_a017_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_B": 1
+      },
+      "source_metadata": {
+        "effect_name": "真空臂基座已安装",
+        "package_code": "MI_HP_TRANSFER_ACT",
+        "responsible_subsystem": "TRANSFER",
+        "source_order": 19
+      }
+    },
+    {
+      "duration": 35,
+      "effects": {
+        "mi_hp_mi_a020_done": "true"
+      },
+      "id": "MI_A020",
+      "max_instances": 1,
+      "name": "安装大气臂本体",
+      "preconditions": {
+        "mi_hp_mi_a018_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_A": 1
+      },
+      "source_metadata": {
+        "effect_name": "大气臂已安装",
+        "package_code": "MI_HP_TRANSFER_ACT",
+        "responsible_subsystem": "TRANSFER",
+        "source_order": 20
+      }
+    },
+    {
+      "duration": 35,
+      "effects": {
+        "mi_hp_mi_a021_done": "true"
+      },
+      "id": "MI_A021",
+      "max_instances": 1,
+      "name": "安装真空臂本体",
+      "preconditions": {
+        "mi_hp_mi_a019_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_B": 1
+      },
+      "source_metadata": {
+        "effect_name": "真空臂已安装",
+        "package_code": "MI_HP_TRANSFER_ACT",
+        "responsible_subsystem": "TRANSFER",
+        "source_order": 21
+      }
+    },
+    {
+      "duration": 20,
+      "effects": {
+        "mi_hp_mi_a022_done": "true"
+      },
+      "id": "MI_A022",
+      "max_instances": 1,
+      "name": "调整大气臂限位",
+      "preconditions": {
+        "mi_hp_mi_a020_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_A": 1
+      },
+      "source_metadata": {
+        "effect_name": "大气臂限位合格",
+        "package_code": "MI_HP_TRANSFER_ACT",
+        "responsible_subsystem": "TRANSFER",
+        "source_order": 22
+      }
+    },
+    {
+      "duration": 20,
+      "effects": {
+        "mi_hp_mi_a023_done": "true"
+      },
+      "id": "MI_A023",
+      "max_instances": 1,
+      "name": "调整真空臂限位",
+      "preconditions": {
+        "mi_hp_mi_a021_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_B": 1
+      },
+      "source_metadata": {
+        "effect_name": "真空臂限位合格",
+        "package_code": "MI_HP_TRANSFER_ACT",
+        "responsible_subsystem": "TRANSFER",
+        "source_order": 23
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a024_done": "true"
+      },
+      "id": "MI_A024",
+      "max_instances": 1,
+      "name": "安装驱动电机",
+      "preconditions": {
+        "mi_hp_mi_a022_done": "true",
+        "mi_hp_mi_a023_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_A": 1
+      },
+      "source_metadata": {
+        "effect_name": "驱动电机已安装",
+        "package_code": "MI_HP_TRANSFER_ACT",
+        "responsible_subsystem": "TRANSFER",
+        "source_order": 24
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a025_done": "true"
+      },
+      "id": "MI_A025",
+      "max_instances": 1,
+      "name": "安装减速器与联轴器",
+      "preconditions": {
+        "mi_hp_mi_a022_done": "true",
+        "mi_hp_mi_a023_done": "true"
+      },
+      "resource_reqs": {
+        "MECH_B": 1
+      },
+      "source_metadata": {
+        "effect_name": "传动链已连接",
+        "package_code": "MI_HP_TRANSFER_ACT",
+        "responsible_subsystem": "TRANSFER",
+        "source_order": 25
+      }
+    },
+    {
+      "duration": 30,
+      "effects": {
+        "mi_hp_mi_a026_done": "true"
+      },
+      "id": "MI_A026",
+      "max_instances": 1,
+      "name": "调整同轴度与张力",
+      "preconditions": {
+        "mi_hp_mi_a024_done": "true",
+        "mi_hp_mi_a025_done": "true"
+      },
+      "resource_reqs": {
+        "METROLOGY": 1,
+        "PRECISION_RIG": 1
+      },
+      "source_metadata": {
+        "effect_name": "传动机构就绪",
+        "package_code": "MI_HP_TRANSFER_ACT",
+        "responsible_subsystem": "TRANSFER",
+        "source_order": 26
+      }
+    },
+    {
+      "duration": 30,
+      "effects": {
+        "mi_hp_mi_a027_done": "true"
+      },
+      "id": "MI_A027",
+      "max_instances": 1,
+      "name": "安装真空管路",
+      "preconditions": {
+        "mi_hp_mi_a018_done": "true",
+        "mi_hp_mi_a019_done": "true"
+      },
+      "resource_reqs": {
+        "PIPE_TEAM": 1
+      },
+      "source_metadata": {
+        "effect_name": "真空管路已安装",
+        "package_code": "MI_HP_UTILITY_ACT",
+        "responsible_subsystem": "UTILITY",
+        "source_order": 27
+      }
+    },
+    {
+      "duration": 30,
+      "effects": {
+        "mi_hp_mi_a028_done": "true"
+      },
+      "id": "MI_A028",
+      "max_instances": 1,
+      "name": "安装气路与冷却管路",
+      "preconditions": {
+        "mi_hp_mi_a018_done": "true",
+        "mi_hp_mi_a019_done": "true"
+      },
+      "resource_reqs": {
+        "PIPE_TEAM": 1
+      },
+      "source_metadata": {
+        "effect_name": "辅助管路已安装",
+        "package_code": "MI_HP_UTILITY_ACT",
+        "responsible_subsystem": "UTILITY",
+        "source_order": 28
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a029_done": "true"
+      },
+      "id": "MI_A029",
+      "max_instances": 1,
+      "name": "安装电缆拖链",
+      "preconditions": {
+        "mi_hp_mi_a017_done": "true"
+      },
+      "resource_reqs": {
+        "ELECTRICAL": 1
+      },
+      "source_metadata": {
+        "effect_name": "拖链已安装",
+        "package_code": "MI_HP_UTILITY_ACT",
+        "responsible_subsystem": "UTILITY",
+        "source_order": 29
+      }
+    },
+    {
+      "duration": 30,
+      "effects": {
+        "mi_hp_mi_a030_done": "true"
+      },
+      "id": "MI_A030",
+      "max_instances": 1,
+      "name": "连接传感器线缆",
+      "preconditions": {
+        "mi_hp_mi_a022_done": "true",
+        "mi_hp_mi_a023_done": "true",
+        "mi_hp_mi_a029_done": "true"
+      },
+      "resource_reqs": {
+        "ELECTRICAL": 1
+      },
+      "source_metadata": {
+        "effect_name": "传感器已连接",
+        "package_code": "MI_HP_UTILITY_ACT",
+        "responsible_subsystem": "UTILITY",
+        "source_order": 30
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a031_done": "true"
+      },
+      "id": "MI_A031",
+      "max_instances": 1,
+      "name": "接入控制柜接口",
+      "preconditions": {
+        "mi_hp_mi_a006_done": "true",
+        "mi_hp_mi_a029_done": "true",
+        "mi_hp_mi_a030_done": "true"
+      },
+      "resource_reqs": {
+        "ELECTRICAL": 1
+      },
+      "source_metadata": {
+        "effect_name": "控制接口已接入",
+        "package_code": "MI_HP_UTILITY_ACT",
+        "responsible_subsystem": "UTILITY",
+        "source_order": 31
+      }
+    },
+    {
+      "duration": 25,
+      "effects": {
+        "mi_hp_mi_a032_done": "true"
+      },
+      "id": "MI_A032",
+      "max_instances": 1,
+      "name": "执行管路泄漏检查",
+      "preconditions": {
+        "mi_hp_mi_a027_done": "true",
+        "mi_hp_mi_a028_done": "true"
+      },
+      "resource_reqs": {
+        "QA": 1
+      },
+      "source_metadata": {
+        "effect_name": "管路检查通过",
+        "package_code": "MI_HP_DEBUG_ACT",
+        "responsible_subsystem": "COMMISSIONING",
+        "source_order": 32
+      }
+    },
+    {
+      "duration": 30,
+      "effects": {
+        "mi_hp_mi_a033_done": "true"
+      },
+      "id": "MI_A033",
+      "max_instances": 1,
+      "name": "执行 I/O 点检",
+      "preconditions": {
+        "mi_hp_mi_a031_done": "true"
+      },
+      "resource_reqs": {
+        "CONTROL": 1
+      },
+      "source_metadata": {
+        "effect_name": "I/O 点检通过",
+        "package_code": "MI_HP_DEBUG_ACT",
+        "responsible_subsystem": "COMMISSIONING",
+        "source_order": 33
+      }
+    },
+    {
+      "duration": 30,
+      "effects": {
+        "mi_hp_mi_a034_done": "true"
+      },
+      "id": "MI_A034",
+      "max_instances": 1,
+      "name": "执行单轴点动测试",
+      "preconditions": {
+        "mi_hp_mi_a026_done": "true",
+        "mi_hp_mi_a032_done": "true",
+        "mi_hp_mi_a033_done": "true"
+      },
+      "resource_reqs": {
+        "CONTROL": 1
+      },
+      "source_metadata": {
+        "effect_name": "单轴运动通过",
+        "package_code": "MI_HP_DEBUG_ACT",
+        "responsible_subsystem": "COMMISSIONING",
+        "source_order": 34
+      }
+    },
+    {
+      "duration": 45,
+      "effects": {
+        "mi_hp_mi_a035_done": "true"
+      },
+      "id": "MI_A035",
+      "max_instances": 1,
+      "name": "执行双臂互锁与循环测试",
+      "preconditions": {
+        "mi_hp_mi_a034_done": "true"
+      },
+      "resource_reqs": {
+        "CONTROL": 1
+      },
+      "source_metadata": {
+        "effect_name": "双臂循环通过",
+        "package_code": "MI_HP_ACCEPTANCE_ACT",
+        "responsible_subsystem": "ACCEPTANCE",
+        "source_order": 35
+      }
+    },
+    {
+      "duration": 20,
+      "effects": {
+        "mi_hp_mi_a036_done": "true"
+      },
+      "id": "MI_A036",
+      "max_instances": 1,
+      "name": "完成机械集成验收",
+      "preconditions": {
+        "mi_hp_mi_a035_done": "true"
+      },
+      "resource_reqs": {
+        "QA": 1
+      },
+      "source_metadata": {
+        "effect_name": "机械集成完成",
+        "package_code": "MI_HP_ACCEPTANCE_ACT",
+        "responsible_subsystem": "ACCEPTANCE",
+        "source_order": 36
+      }
+    }
+  ],
+  "default_budget": {
+    "time_limit_seconds": 30,
+    "transition_limit": 500000
+  },
+  "execution_mode": "parallel",
+  "goal": {
+    "required": {
+      "mi_hp_mi_a036_done": "true"
+    }
+  },
+  "id": "solver_demo_mi_hp_core_parallel",
+  "initial_facts": {
+    "mi_hp_mi_a001_done": "false",
+    "mi_hp_mi_a002_done": "false",
+    "mi_hp_mi_a003_done": "false",
+    "mi_hp_mi_a004_done": "false",
+    "mi_hp_mi_a005_done": "false",
+    "mi_hp_mi_a006_done": "false",
+    "mi_hp_mi_a007_done": "false",
+    "mi_hp_mi_a008_done": "false",
+    "mi_hp_mi_a009_done": "false",
+    "mi_hp_mi_a010_done": "false",
+    "mi_hp_mi_a011_done": "false",
+    "mi_hp_mi_a012_done": "false",
+    "mi_hp_mi_a013_done": "false",
+    "mi_hp_mi_a014_done": "false",
+    "mi_hp_mi_a015_done": "false",
+    "mi_hp_mi_a016_done": "false",
+    "mi_hp_mi_a017_done": "false",
+    "mi_hp_mi_a018_done": "false",
+    "mi_hp_mi_a019_done": "false",
+    "mi_hp_mi_a020_done": "false",
+    "mi_hp_mi_a021_done": "false",
+    "mi_hp_mi_a022_done": "false",
+    "mi_hp_mi_a023_done": "false",
+    "mi_hp_mi_a024_done": "false",
+    "mi_hp_mi_a025_done": "false",
+    "mi_hp_mi_a026_done": "false",
+    "mi_hp_mi_a027_done": "false",
+    "mi_hp_mi_a028_done": "false",
+    "mi_hp_mi_a029_done": "false",
+    "mi_hp_mi_a030_done": "false",
+    "mi_hp_mi_a031_done": "false",
+    "mi_hp_mi_a032_done": "false",
+    "mi_hp_mi_a033_done": "false",
+    "mi_hp_mi_a034_done": "false",
+    "mi_hp_mi_a035_done": "false",
+    "mi_hp_mi_a036_done": "false"
+  },
+  "max_steps": 36,
+  "name": "Solver Demo MI-HP-001 Core Parallel Projection",
+  "provenance": {
+    "comparison_note": "原项目 1170/1316 分钟结果包含本投影排除的日历或调度规则，不能与核心并行 makespan 直接比较。",
+    "excluded_rules": "工作日历/白班限制、行吊对全计划独占、责任子系统连续、功能调测独占",
+    "expected_non_overlap_pairs": "MI_A013+MI_A014",
+    "expected_overlap_pairs": "MI_A002+MI_A003,MI_A004+MI_A005,MI_A011+MI_A012,MI_A018+MI_A019,MI_A020+MI_A021,MI_A024+MI_A025,MI_A027+MI_A028,MI_A027+MI_A020",
+    "projection": "core_parallel_v1",
+    "source_all_rules_makespan": "1316",
+    "source_dataset": "MI-HP-001",
+    "source_file": "seeds/011_mechanical_integration_high_parallel_seed.sql",
+    "source_project": "solver_demo_project",
+    "source_required_only_makespan": "1170",
+    "source_sha256": "60A34D6EBDF9397BDCE69D56F5C89F317A1202A97AB6581D7CABF154A169D1CD"
+  },
+  "resources": [
+    {
+      "capacity": 1,
+      "id": "CONTROL",
+      "name": "控制组",
+      "source_code": "MI-HP-CTRL-01"
+    },
+    {
+      "capacity": 1,
+      "id": "ELECTRICAL",
+      "name": "电气组",
+      "source_code": "MI-HP-ELEC-01"
+    },
+    {
+      "capacity": 1,
+      "id": "LOGISTICS",
+      "name": "物流员",
+      "source_code": "MI-HP-LOG-01"
+    },
+    {
+      "capacity": 1,
+      "id": "MECH_A",
+      "name": "机械组A",
+      "source_code": "MI-HP-MECH-A"
+    },
+    {
+      "capacity": 1,
+      "id": "MECH_B",
+      "name": "机械组B",
+      "source_code": "MI-HP-MECH-B"
+    },
+    {
+      "capacity": 2,
+      "id": "METROLOGY",
+      "name": "计量员",
+      "source_code": "MI-HP-MET-01"
+    },
+    {
+      "capacity": 1,
+      "id": "OVERHEAD_CRANE",
+      "name": "Overhead Crane",
+      "source_code": "MI-HP-CRANE-01"
+    },
+    {
+      "capacity": 2,
+      "id": "PIPE_TEAM",
+      "name": "管路组",
+      "source_code": "MI-HP-PIPE-01"
+    },
+    {
+      "capacity": 1,
+      "id": "PRECISION_RIG",
+      "name": "精密校准工装",
+      "source_code": "MI-HP-RIG-01"
+    },
+    {
+      "capacity": 1,
+      "id": "PROCESS_ENGINEER",
+      "name": "工艺工程师",
+      "source_code": "MI-HP-PE-01"
+    },
+    {
+      "capacity": 1,
+      "id": "QA",
+      "name": "质检组",
+      "source_code": "MI-HP-QA-01"
+    },
+    {
+      "capacity": 1,
+      "id": "SAFETY_OFFICER",
+      "name": "安全员",
+      "source_code": "MI-HP-SAFE-01"
+    }
+  ],
+  "start_time": 0
+}
