@@ -7,6 +7,7 @@ from collections import OrderedDict
 from dataclasses import dataclass, replace
 
 from .archive import PathArchive
+from .relevance import relevant_activity_ids
 from .models import Action, Budget, CandidatePath, EngineResult, ImprovementPoint, Scenario, SimState
 from .simulator import PathSimulator
 
@@ -385,7 +386,7 @@ class GeneticExplorer:
         activity = self.scenario.activity_by_id[action.activity_id]
         before = set(state.active_state_ids)
         after = (
-            before - set(activity.transition_state_ids) - set(activity.compatibility_remove_state_ids)
+            before - set(activity.removed_state_ids)
         ) | set(activity.output_state_ids)
         needed_after = self._needed_activity_ids(after)
         for old_state_id in activity.transition_state_ids:
@@ -411,7 +412,7 @@ class GeneticExplorer:
             for running in state.running:
                 if running.end_time == through_time:
                     activity = self.scenario.activity_by_id[running.activity_id]
-                    active.difference_update((*activity.transition_state_ids, *activity.compatibility_remove_state_ids))
+                    active.difference_update(activity.removed_state_ids)
                     active.update(activity.output_state_ids)
         else:
             assert action.activity_id is not None
@@ -419,7 +420,7 @@ class GeneticExplorer:
             through_time = state.time if action.kind == "START" else state.time + activity.duration
             if action.kind == "EXECUTE":
                 self.simulator._apply_events(active, state.time, through_time)
-            active.difference_update((*activity.transition_state_ids, *activity.compatibility_remove_state_ids))
+            active.difference_update(activity.removed_state_ids)
             active.update(activity.output_state_ids)
         frozen = tuple(sorted(active))
         probe = SimState(
@@ -488,7 +489,7 @@ class GeneticExplorer:
             for running in state.running:
                 if running.end_time == action.target_time:
                     completing = self.scenario.activity_by_id[running.activity_id]
-                    after.difference_update((*completing.transition_state_ids, *completing.compatibility_remove_state_ids))
+                    after.difference_update(completing.removed_state_ids)
                     after.update(completing.output_state_ids)
             duration = action.target_time - state.time
             event_unlock = len(
@@ -500,7 +501,7 @@ class GeneticExplorer:
         else:
             assert action.activity_id is not None
             activity = self.scenario.activity_by_id[action.activity_id]
-            after.difference_update((*activity.transition_state_ids, *activity.compatibility_remove_state_ids))
+            after.difference_update(activity.removed_state_ids)
             after.update(activity.output_state_ids)
             duration = activity.duration
             event_unlock = 0
@@ -520,7 +521,7 @@ class GeneticExplorer:
             future = [event.time for event in self.scenario.external_events if event.time > state.time]
             gap = min(future) - state.time if future else 0
             window_use = min(duration, gap) / max(1, gap) if gap else 0.0
-        goal_gain = len((set(self.scenario.goal_state_ids) & after) - before)
+        goal_gain = len((set(self.scenario.goal_state_ids) & after) - before) + len((set(self.scenario.forbidden_state_ids) & before) - after)
         # Fact unlocks and time/event unlocks are separate features so long
         # activities do not receive artificial credit merely for crossing an event.
         unlock_gain = len(
@@ -565,16 +566,16 @@ class GeneticExplorer:
             for item in self.scenario.resources
         )
         reads = set(activity.required_state_ids)
-        writes = set(activity.transition_state_ids) | set(activity.compatibility_remove_state_ids) | set(activity.output_state_ids)
+        writes = set(activity.written_state_ids)
         blocked = 0
         for other in self.scenario.activities:
             if other.id == activity.id:
                 continue
             other_reads = set(other.required_state_ids)
-            other_writes = set(other.transition_state_ids) | set(other.compatibility_remove_state_ids) | set(other.output_state_ids)
+            other_writes = set(other.written_state_ids)
             if writes & (other_reads | other_writes) or reads & other_writes:
                 blocked += 1
-        projected_gain = len((set(self.scenario.goal_state_ids) & after) - before)
+        projected_gain = len((set(self.scenario.goal_state_ids) & after) - before) + len((set(self.scenario.forbidden_state_ids) & before) - after)
         return (
             used / total_capacity,
             max(0, remaining) / total_capacity,
@@ -597,20 +598,7 @@ class GeneticExplorer:
         return result
 
     def _needed_activity_ids(self, active: set[str]) -> set[str]:
-        needed = set(self.scenario.goal_state_ids) - active
-        relevant: set[str] = set()
-        changed = True
-        while changed:
-            changed = False
-            for activity in self.scenario.activities:
-                if activity.id in relevant or not (set(activity.output_state_ids) & needed):
-                    continue
-                relevant.add(activity.id)
-                for state_id in activity.precondition_state_ids:
-                    if state_id not in active and state_id not in needed:
-                        needed.add(state_id)
-                        changed = True
-        return relevant
+        return set(relevant_activity_ids(self.scenario, active))
 
     def _event_relaxed_distance(self, state: SimState) -> int:
         active = set(state.active_state_ids)
@@ -640,19 +628,7 @@ class GeneticExplorer:
         return sum(record.activity_id not in self._relevant for record in state.executions)
 
     def _build_relevance_set(self) -> frozenset[str]:
-        needed = set(self.scenario.goal_state_ids)
-        relevant: set[str] = set()
-        changed = True
-        while changed:
-            changed = False
-            for activity in self.scenario.activities:
-                if activity.id in relevant or not (set(activity.output_state_ids) & needed):
-                    continue
-                relevant.add(activity.id)
-                old = len(needed)
-                needed.update(activity.precondition_state_ids)
-                changed = changed or len(needed) != old
-        return frozenset(relevant)
+        return relevant_activity_ids(self.scenario)
 
     def _rule_seed_genes(self) -> list[tuple[float, ...]]:
         preferred_policy = (1.0, 1.0, 0.5, 2.0, -0.5, -0.5, -2.0, -2.0, -2.0, 1.0, 0.5, -1.0, 1.0, 1.0)

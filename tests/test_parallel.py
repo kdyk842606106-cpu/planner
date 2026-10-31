@@ -53,7 +53,7 @@ class ParallelSimulatorTest(unittest.TestCase):
         self.assertEqual(candidate.metrics.parallel_savings, 35)
         self.assertEqual(candidate.metrics.peak_parallelism, 3)
         self.assertIn("t10:[inspection,test_a,test_b]", candidate.schedule_signature)
-        self.assertEqual(VALIDATOR_VERSION, "temporal-event-validator-v4")
+        self.assertEqual(VALIDATOR_VERSION, "temporal-event-validator-v5")
 
     def test_resource_capacity_one_yields_seventy(self):
         resources = tuple(

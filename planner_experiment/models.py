@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field, is_dataclass
+from functools import cached_property
 from typing import Any, Literal
 
 
@@ -71,6 +72,7 @@ class ActivityDefinition:
     additional_output_state_ids: StateIdItems = ()
     is_milestone: bool = False
     compatibility_remove_state_ids: StateIdItems = ()
+    delete_effect_state_ids: StateIdItems = ()
 
     @property
     def required_events(self) -> tuple[str, ...]:
@@ -91,6 +93,15 @@ class ActivityDefinition:
     @property
     def output_state_ids(self) -> StateIdItems:
         return freeze_state_ids((self.output_state_id, *self.additional_output_state_ids))
+
+    @cached_property
+    def removed_state_ids(self) -> StateIdItems:
+        """All completion deletions; only transition inputs require truth."""
+        return freeze_state_ids((*self.transition_state_ids, *self.delete_effect_state_ids, *self.compatibility_remove_state_ids))
+
+    @cached_property
+    def written_state_ids(self) -> StateIdItems:
+        return freeze_state_ids((*self.removed_state_ids, *self.output_state_ids))
 
 
 @dataclass(frozen=True)
@@ -143,6 +154,7 @@ class Scenario:
     goal_state_ids: StateIdItems = ()
     forbidden_state_ids: StateIdItems = ()
     target_activity_ids: tuple[str, ...] = ()
+    input_schema_version: int = 1
 
     @property
     def provenance_dict(self) -> dict[str, str]:

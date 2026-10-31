@@ -10,6 +10,7 @@ from collections import OrderedDict
 from dataclasses import dataclass, field
 
 from .archive import PathArchive
+from .relevance import relevant_activity_ids
 from .models import Action, Budget, EngineResult, ImprovementPoint, Scenario, SimState, count_get
 from .simulator import PathSimulator
 from .validator import ResultValidator
@@ -529,17 +530,7 @@ class AnytimeAStar:
         return set(self.scenario.expected_signatures).issubset(found)
 
     def _build_relevance_set(self) -> frozenset[str]:
-        needed, relevant, changed = set(self.scenario.goal_state_ids), set(), True
-        while changed:
-            changed = False
-            for activity in self.scenario.activities:
-                if activity.id in relevant or not (set(activity.output_state_ids) & needed):
-                    continue
-                relevant.add(activity.id)
-                before = len(needed)
-                needed.update(activity.precondition_state_ids)
-                changed = changed or len(needed) != before
-        return frozenset(relevant)
+        return relevant_activity_ids(self.scenario)
 
     def _build_dominated_set(self) -> frozenset[str]:
         dominated: set[str] = set()
@@ -547,7 +538,7 @@ class AnytimeAStar:
             for alternative in self.scenario.activities:
                 if activity.id == alternative.id:
                     continue
-                same_contract = activity.precondition_bindings == alternative.precondition_bindings and activity.output_state_ids == alternative.output_state_ids and activity.compatibility_remove_state_ids == alternative.compatibility_remove_state_ids and activity.required_events == alternative.required_events and activity.max_instances == alternative.max_instances
+                same_contract = activity.precondition_bindings == alternative.precondition_bindings and activity.output_state_ids == alternative.output_state_ids and activity.removed_state_ids == alternative.removed_state_ids and activity.required_events == alternative.required_events and activity.max_instances == alternative.max_instances
                 if same_contract and activity.duration > alternative.duration:
                     dominated.add(activity.id)
         return frozenset(dominated)

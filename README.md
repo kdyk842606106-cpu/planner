@@ -5,6 +5,7 @@
 当前支持：
 
 - 原生显式 `transition` 前置关系、活动自动目标状态和可选业务次数上限；
+- V2 四类关系：保留前置、消耗转移、自动实现效果及独立 `delete_effect_state_ids`；独立破坏无须目标状态在执行前成立；
 - 旧等值 `preconditions/effects` 场景的加载时转换；
 - 通用定时外部事件及旧 `materials` 格式兼容；
 - 自动识别可逆状态域并统计转换、重访和目标回退；
@@ -47,7 +48,7 @@ python -m planner_experiment benchmark `
   --output runs/phase2-final/synthetic-pressure
 ```
 
-每次对比生成 `manifest.json`、`astar_result.json`、`ga_result.json`、`comparison.json` 和 `report.md`；并为 A*/GA 的最好方案及代表性备选生成最多四张嵌入式 SVG 甘特图。benchmark 额外生成 `benchmark.json`，根报告链接到代表种子运行的甘特图。当前输出协议为 schema v4，Validator 版本为 `temporal-event-validator-v4`。历史 schema v3 结果只保留归档，不自动迁移或混入 v4 汇总。
+每次对比生成 `manifest.json`、`astar_result.json`、`ga_result.json`、`comparison.json` 和 `report.md`；并为 A*/GA 的最好方案及代表性备选生成最多四张嵌入式 SVG 甘特图。benchmark 额外生成 `benchmark.json`，根报告链接到代表种子运行的甘特图。当前输出协议为 schema v4，Validator 版本为 `temporal-event-validator-v5`。历史 schema v3 结果只保留归档，不自动迁移或混入 v4 汇总。
 
 场景缺省使用 `execution_mode: "serial"`，因此原有场景和 `EXECUTE/WAIT` 动作文件行为不变。设置 `execution_mode: "parallel"` 后，活动通过 `START` 在当前时刻启动，通过 `ADVANCE` 推进到最近的活动完成或外部事件；可在场景中用 `resources` 定义容量资源、用活动的 `resource_reqs` 声明占用量。CLI 也支持 `--execution-mode serial|parallel` 覆盖场景配置。
 
@@ -72,6 +73,10 @@ python -m planner_experiment benchmark `
 该投影保留 `solver_demo_project` 的 36 个活动、52 条依赖和 12 类资源，但明确排除工作日历、行吊对全计划独占、责任子系统连续和功能调测独占，因此不能与源项目包含规则的 1170/1316 分钟结果直接比较。
 
 ## 显式 transition 场景
+
+新场景可设置 `schema_version: 2`。每个活动的主输出由 `output_state_id` 绑定，省略时自动生成；`required` 和 `transition` 前置均可为空或多项，并可配置独立 `delete_effect_state_ids`。完成时先删除转移状态和独立破坏状态，再加入主输出及附加输出。破坏状态原本不存在时仍允许执行；它属于并行写锁，不属于执行前置或可逆转换边。活动结果失效不删除历史执行记录。
+
+V1/旧字典场景继续兼容，缺少删除字段视为空；V1 原有 transition/milestone 校验保持不变。V2 不要求无转移活动配置 milestone。引擎通过 `ENGINE_CAPABILITIES` 声明 `independent-delete-effects/v1`；exploration 会拒绝不支持该能力的旧引擎。A*/GA 的相关活动闭包同时保留正目标的实现者和负目标的删除者。
 
 新场景以活动为管理对象。每个活动通过 `output_state_id` 绑定一个自动目标状态，前置关系用 `relation_role` 区分普通条件与被替换状态：
 

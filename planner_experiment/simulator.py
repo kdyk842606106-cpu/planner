@@ -164,7 +164,7 @@ class PathSimulator:
         start = state.time
         end = start + activity.duration
         self._apply_events(after_ids, start, end)
-        after_ids.difference_update((*activity.transition_state_ids, *activity.compatibility_remove_state_ids))
+        after_ids.difference_update(activity.removed_state_ids)
         after_ids.update(activity.output_state_ids)
         before_frozen = freeze_state_ids(before_ids)
         after_frozen = freeze_state_ids(after_ids)
@@ -280,7 +280,7 @@ class PathSimulator:
         writes: set[str] = set()
         for running in completing:
             activity = self.activities[running.activity_id]
-            activity_writes = set(activity.transition_state_ids) | set(activity.compatibility_remove_state_ids) | set(activity.output_state_ids)
+            activity_writes = set(activity.written_state_ids)
             overlap = writes & activity_writes
             if overlap:
                 raise InvalidAction(f"simultaneous completions write {sorted(overlap)[0]}")
@@ -288,7 +288,7 @@ class PathSimulator:
         after = set(after_events)
         for running in completing:
             activity = self.activities[running.activity_id]
-            after.difference_update((*activity.transition_state_ids, *activity.compatibility_remove_state_ids))
+            after.difference_update(activity.removed_state_ids)
         for running in completing:
             after.update(self.activities[running.activity_id].output_state_ids)
         for running in survivors:
@@ -348,11 +348,11 @@ class PathSimulator:
     def _has_running_lock_conflict(self, state: SimState, activity_id: str) -> bool:
         activity = self.activities[activity_id]
         reads = set(activity.required_state_ids)
-        writes = set(activity.transition_state_ids) | set(activity.compatibility_remove_state_ids) | set(activity.output_state_ids)
+        writes = set(activity.written_state_ids)
         for running in state.running:
             other = self.activities[running.activity_id]
             other_reads = set(other.required_state_ids)
-            other_writes = set(other.transition_state_ids) | set(other.compatibility_remove_state_ids) | set(other.output_state_ids)
+            other_writes = set(other.written_state_ids)
             if writes & (other_reads | other_writes) or reads & other_writes:
                 return True
         return False
@@ -484,7 +484,7 @@ class PathSimulator:
             for kind, item in timeline[time]:
                 if kind == "activity":
                     activity = self.activities[item.activity_id]
-                    activity_after.difference_update((*activity.transition_state_ids, *activity.compatibility_remove_state_ids))
+                    activity_after.difference_update(activity.removed_state_ids)
             for kind, item in timeline[time]:
                 if kind == "activity":
                     activity_after.update(self.activities[item.activity_id].output_state_ids)
@@ -649,6 +649,8 @@ class PathSimulator:
         executions = tuple(sorted(executions, key=lambda item: (item.end_time, item.activity_id, item.ordinal)))
         edges: list[PlanEdge] = []
         latest_writer: dict[str, str] = {}
+        latest_deleter: dict[str, str] = {}
+        track_deletions = any(activity.delete_effect_state_ids for activity in self.scenario.activities)
         seen: set[tuple[str, str, str, str | None]] = set()
         activity_by_instance = {record.instance_id: record.activity_id for record in executions}
         for index, record in enumerate(executions):
@@ -671,8 +673,12 @@ class PathSimulator:
                 if marker not in seen:
                     edges.append(PlanEdge(previous.instance_id, record.instance_id, "serial_experiment"))
                     seen.add(marker)
+            for state_id in (activity.removed_state_ids if track_deletions else ()):
+                latest_writer.pop(state_id, None)
+                latest_deleter[state_id] = record.instance_id
             for state_id in activity.output_state_ids:
                 latest_writer[state_id] = record.instance_id
+                latest_deleter.pop(state_id, None)
         if self.scenario.execution_mode == "parallel":
             self._append_temporal_order_edges(executions, edges, seen)
         goal_provider = {
@@ -680,6 +686,7 @@ class PathSimulator:
             for goal in self.scenario.goal_state_ids
             if goal in latest_writer
         }
+        goal_provider.update({f"false:{goal}": latest_deleter[goal] for goal in self.scenario.forbidden_state_ids if goal in latest_deleter})
         roots = set(goal_provider.values())
         incoming: dict[str, list[PlanEdge]] = {}
         for edge in edges:
@@ -694,6 +701,7 @@ class PathSimulator:
                     core.add(edge.from_instance)
                     pending.append(edge.from_instance)
         providers: set[str] = set()
+        providers.update(f"false:{goal}:{activity_by_instance[latest_deleter[goal]]}" for goal in self.scenario.forbidden_state_ids if goal in latest_deleter)
         for goal in self.scenario.goal_state_ids:
             provider = latest_writer.get(goal)
             if provider:
@@ -718,7 +726,7 @@ class PathSimulator:
         for index, current in enumerate(ordered):
             current_activity = self.activities[current.activity_id]
             current_reads = set(current_activity.required_state_ids)
-            current_writes = set(current_activity.transition_state_ids) | set(current_activity.compatibility_remove_state_ids) | set(current_activity.output_state_ids)
+            current_writes = set(current_activity.written_state_ids)
             for previous in reversed(ordered[:index]):
                 if previous.end_time > current.start_time:
                     continue
@@ -731,7 +739,7 @@ class PathSimulator:
                         edges.append(PlanEdge(previous.instance_id, current.instance_id, "resource_order", key))
                         seen.add(marker)
                 previous_reads = set(previous_activity.required_state_ids)
-                previous_writes = set(previous_activity.transition_state_ids) | set(previous_activity.compatibility_remove_state_ids) | set(previous_activity.output_state_ids)
+                previous_writes = set(previous_activity.written_state_ids)
                 mutex = (current_writes & (previous_reads | previous_writes)) | (current_reads & previous_writes)
                 if mutex:
                     key = sorted(mutex)[0]

@@ -6,7 +6,7 @@ from .models import CandidatePath, Scenario, ValidationResult
 from .simulator import InvalidAction, PathSimulator
 
 
-VALIDATOR_VERSION = "temporal-event-validator-v4"
+VALIDATOR_VERSION = "temporal-event-validator-v5"
 
 
 class ResultValidator:

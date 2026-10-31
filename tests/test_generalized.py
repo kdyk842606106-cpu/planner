@@ -110,7 +110,7 @@ class GeneralizedModelTest(unittest.TestCase):
         )
         self.assertEqual(candidate.metrics.makespan, 90)
         self.assertIn("power_off>WAIT@45>install_x", candidate.schedule_signature)
-        self.assertEqual(VALIDATOR_VERSION, "temporal-event-validator-v4")
+        self.assertEqual(VALIDATOR_VERSION, "temporal-event-validator-v5")
         self.assertTrue(ResultValidator(self.module_x).validate(candidate).valid)
 
     def test_generic_known_structures_and_metrics(self):

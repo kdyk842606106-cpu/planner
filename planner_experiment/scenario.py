@@ -19,6 +19,8 @@ from .models import (
     to_primitive,
 )
 
+ENGINE_CAPABILITIES = frozenset({"independent-delete-effects/v1"})
+
 
 class ScenarioError(ValueError):
     pass
@@ -34,6 +36,9 @@ def generated_output_state_id(activity_id: str) -> str:
 
 
 def scenario_from_dict(payload: dict[str, Any]) -> Scenario:
+    schema_version = int(payload.get("schema_version", 2 if any("delete_effect_state_ids" in a for a in payload.get("activities", [])) else 1))
+    if schema_version not in {1, 2}:
+        raise ScenarioError(f"Unsupported input schema version: {schema_version}")
     execution_mode = str(payload.get("execution_mode", "serial"))
     resources = tuple(
         ResourceDefinition(id=str(item["id"]), capacity=int(item["capacity"]))
@@ -87,6 +92,9 @@ def scenario_from_dict(payload: dict[str, Any]) -> Scenario:
             legacy_key=key_text,
             legacy_value=value_text,
         )
+
+    for state in payload.get("states", []):
+        add_state(str(state["id"]), name=state.get("name"), source_activity_id=state.get("source_activity_id"))
 
     legacy_initial = {str(key): str(value) for key, value in payload.get("initial_facts", {}).items()}
     legacy_goal_required = {
@@ -183,6 +191,7 @@ def scenario_from_dict(payload: dict[str, Any]) -> Scenario:
                 output_state_id=output_state_id,
                 additional_output_state_ids=additional_outputs,
                 is_milestone=is_milestone,
+                delete_effect_state_ids=freeze_state_ids(item.get("delete_effect_state_ids", [])),
             )
         )
 
@@ -294,6 +303,7 @@ def scenario_from_dict(payload: dict[str, Any]) -> Scenario:
         goal_state_ids=freeze_state_ids(goal_state_ids),
         forbidden_state_ids=freeze_state_ids(forbidden_state_ids),
         target_activity_ids=target_activity_ids,
+        input_schema_version=schema_version,
     )
     validate_scenario(scenario)
     return scenario
@@ -355,9 +365,14 @@ def validate_scenario(scenario: Scenario) -> None:
         }
         if invalid_roles:
             issues.append(f"activity {activity.id} has invalid relation roles {sorted(invalid_roles)}")
-        if not activity.transition_state_ids and not activity.is_milestone:
+        if scenario.input_schema_version == 1 and not activity.transition_state_ids and not activity.is_milestone:
             issues.append(f"activity {activity.id} must declare a transition state or be a milestone")
-        referenced_states = set(activity.precondition_state_ids) | set(activity.output_state_ids)
+        if activity.delete_effect_state_ids or scenario.input_schema_version >= 2:
+            required, transitions = set(activity.required_state_ids), set(activity.transition_state_ids)
+            outputs, deletes = set(activity.output_state_ids), set(activity.delete_effect_state_ids)
+            if (required & transitions) or (required & deletes) or (transitions & deletes) or (outputs & (transitions | deletes)):
+                issues.append(f"activity {activity.id} has conflicting state roles")
+        referenced_states = set(activity.precondition_state_ids) | set(activity.output_state_ids) | set(activity.delete_effect_state_ids)
         missing_states = referenced_states - state_ids
         if missing_states:
             issues.append(f"activity {activity.id} references unknown states {sorted(missing_states)}")
