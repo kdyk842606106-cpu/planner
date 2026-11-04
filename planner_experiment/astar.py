@@ -5,6 +5,7 @@ import itertools
 import math
 import time
 import tracemalloc
+from .instrumentation import memory_tracing_enabled
 import zlib
 from collections import OrderedDict
 from dataclasses import dataclass, field
@@ -92,7 +93,9 @@ class AnytimeAStar:
     def run(self, scenario: Scenario, budget: Budget, *, run_id: str, seed: int | None = None) -> EngineResult:
         if scenario != self.scenario:
             raise ValueError("Engine scenario does not match run scenario")
-        tracemalloc.start()
+        trace_memory = memory_tracing_enabled()
+        if trace_memory:
+            tracemalloc.start()
         wall_start = time.perf_counter()
         cpu_start = time.process_time()
         deadline = wall_start + budget.time_limit_seconds
@@ -279,8 +282,9 @@ class AnytimeAStar:
             reconstruction_count += used_rebuilds
             trimmed = trimmed or used_trimmed
 
-        _, peak_memory = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
+        _, peak_memory = tracemalloc.get_traced_memory() if trace_memory else (0, 0)
+        if trace_memory:
+            tracemalloc.stop()
         elapsed = time.perf_counter() - wall_start
         paths = archive.paths()
         if paths:

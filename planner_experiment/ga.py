@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 import time
 import tracemalloc
+from .instrumentation import memory_tracing_enabled
 from collections import OrderedDict
 from dataclasses import dataclass, replace
 
@@ -89,7 +90,9 @@ class GeneticExplorer:
             raise ValueError("Engine scenario does not match run scenario")
         actual_seed = 0 if seed is None else seed
         rng = random.Random(actual_seed)
-        tracemalloc.start()
+        trace_memory = memory_tracing_enabled()
+        if trace_memory:
+            tracemalloc.start()
         wall_start = time.perf_counter()
         cpu_start = time.process_time()
         deadline = wall_start + budget.time_limit_seconds
@@ -173,8 +176,9 @@ class GeneticExplorer:
                 stagnant = 0
             population = next_population
 
-        _, peak_memory = tracemalloc.get_traced_memory()
-        tracemalloc.stop()
+        _, peak_memory = tracemalloc.get_traced_memory() if trace_memory else (0, 0)
+        if trace_memory:
+            tracemalloc.stop()
         elapsed = time.perf_counter() - wall_start
         paths = archive.paths()
         status = "TIMEOUT_PARTIAL" if paths and stopped_reason != "MAX_GENERATIONS" else "OK" if paths else "TIMEOUT_EMPTY"

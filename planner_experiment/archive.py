@@ -4,6 +4,7 @@ import math
 from dataclasses import replace
 
 from .models import CandidatePath
+from .instrumentation import emit_candidate
 
 
 class PathArchive:
@@ -27,6 +28,7 @@ class PathArchive:
         self._paths: dict[str, CandidatePath] = {}
 
     def add(self, candidate: CandidatePath) -> tuple[bool, bool]:
+        emit_candidate(candidate)
         previous_best = self.best.metrics.sort_key if self.best else None
         before = self._paths.get(candidate.structure_signature)
         pool = dict(self._paths)

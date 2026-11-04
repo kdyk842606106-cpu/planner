@@ -21,6 +21,10 @@
 
 ## 快速运行
 
+三引擎、六档规模的独立正确性与性能实验参见 [实验说明](docs/three-engine-benchmark.md)。
+新入口为 `python -m planner_experiment.benchmark_suite generate|smoke|run|report --output <目录>`，
+原有双引擎 benchmark 保持不变。
+
 ```powershell
 python -m planner_experiment validate `
   --scenario scenarios/module_x.json `

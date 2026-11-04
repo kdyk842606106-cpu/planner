@@ -20,6 +20,7 @@ from .models import (
     thaw_mapping,
 )
 from .transition_graph import StateTransitionGraph
+from .working_time import next_work_start, work_end, work_segments, next_activity_start
 
 
 class InvalidAction(ValueError):
@@ -128,8 +129,20 @@ class PathSimulator:
                     continue
                 if any(self.events[event_id].time > state.time for event_id in activity.required_events):
                     continue
+                if next_activity_start(self.scenario.working_intervals,state.time,activity)!=state.time or work_end(self.scenario.working_intervals, state.time, activity.duration) is None:
+                    continue
                 actions.append(Action(kind="EXECUTE", activity_id=activity.id))
         future_events = sorted({event.time for event in self.events.values() if event.time > state.time})
+        for a in self.activities.values():
+            if a.allowed_execution_windows is None:
+                continue
+            opening=next_activity_start(self.scenario.working_intervals,state.time,a)
+            if opening is not None and opening>state.time:
+                future_events.append(opening)
+        future_events=sorted(set(future_events))
+        opening = next_work_start(self.scenario.working_intervals, state.time)
+        if opening is not None and opening > state.time:
+            future_events = sorted(set([*future_events, opening]))
         if future_events:
             actions.append(Action(kind="WAIT", target_time=future_events[0]))
         return tuple(actions)
@@ -162,7 +175,7 @@ class PathSimulator:
         before_ids = set(state.active_state_ids)
         after_ids = set(before_ids)
         start = state.time
-        end = start + activity.duration
+        end = work_end(self.scenario.working_intervals, start, activity.duration)
         self._apply_events(after_ids, start, end)
         after_ids.difference_update(activity.removed_state_ids)
         after_ids.update(activity.output_state_ids)
@@ -212,11 +225,21 @@ class PathSimulator:
                     continue
                 if self._has_running_lock_conflict(state, activity.id):
                     continue
-                if self._event_breaks_invariant(activity.id, state.time, state.time + activity.duration):
+                end = work_end(self.scenario.working_intervals, state.time, activity.duration)
+                if next_activity_start(self.scenario.working_intervals,state.time,activity)!=state.time or end is None or self._event_breaks_invariant(activity.id, state.time, end):
                     continue
                 actions.append(Action(kind="START", activity_id=activity.id))
         next_times = [item.end_time for item in state.running if item.end_time > state.time]
         next_times.extend(event.time for event in self.events.values() if event.time > state.time)
+        for a in self.activities.values():
+            if a.allowed_execution_windows is None:
+                continue
+            opening=next_activity_start(self.scenario.working_intervals,state.time,a)
+            if opening is not None and opening>state.time:
+                next_times.append(opening)
+        opening = next_work_start(self.scenario.working_intervals, state.time)
+        if opening is not None and opening > state.time:
+            next_times.append(opening)
         if next_times:
             actions.append(Action(kind="ADVANCE", target_time=min(next_times)))
         return tuple(actions)
@@ -230,10 +253,7 @@ class PathSimulator:
             target = next(item.end_time for item in started.running if item.activity_id == action.activity_id)
             current = started
             while current.time < target:
-                next_time = min(
-                    [item.end_time for item in current.running if item.end_time > current.time]
-                    + [event.time for event in self.events.values() if current.time < event.time <= target]
-                )
+                next_time = next(a.target_time for a in self._enabled_parallel(current) if a.kind == 'ADVANCE')
                 current = self._transition_parallel(current, Action("ADVANCE", target_time=next_time))
             return replace(current, actions=(*state.actions, action))
         if action.kind == "WAIT":
@@ -249,7 +269,7 @@ class PathSimulator:
                 activity_id=activity.id,
                 ordinal=ordinal,
                 start_time=state.time,
-                end_time=state.time + activity.duration,
+                end_time=work_end(self.scenario.working_intervals, state.time, activity.duration),
                 start_facts=state.facts,
                 start_state_ids=state.active_state_ids,
                 resource_allocations=activity.resource_reqs,
@@ -347,6 +367,10 @@ class PathSimulator:
 
     def _has_running_lock_conflict(self, state: SimState, activity_id: str) -> bool:
         activity = self.activities[activity_id]
+        if state.running and (activity.exclusive_execution or any(
+            self.activities[running.activity_id].exclusive_execution for running in state.running
+        )):
+            return True
         reads = set(activity.required_state_ids)
         writes = set(activity.written_state_ids)
         for running in state.running:
@@ -558,11 +582,11 @@ class PathSimulator:
             # arbitrary sibling order is not directly serial-replayable.
             return sum(self.activities[item.activity_id].duration for item in executions)
 
-    @staticmethod
-    def _parallelism(executions: tuple[ExecutionRecord, ...], makespan: int) -> tuple[int, float]:
+    def _parallelism(self, executions: tuple[ExecutionRecord, ...], makespan: int) -> tuple[int, float]:
         points: list[tuple[int, int]] = []
         for record in executions:
-            points.extend(((record.start_time, 1), (record.end_time, -1)))
+            for start,end in work_segments(self.scenario.working_intervals, record.start_time, record.end_time):
+                points.extend(((start, 1), (end, -1)))
         active = peak = area = 0
         previous: int | None = None
         for time, delta in sorted(points, key=lambda item: (item[0], item[1])):
@@ -583,8 +607,9 @@ class PathSimulator:
             for record in executions:
                 quantity = dict(self.activities[record.activity_id].resource_reqs).get(resource.id, 0)
                 if quantity:
-                    points.extend(((record.start_time, quantity), (record.end_time, -quantity)))
-                    area[resource.id] = area.get(resource.id, 0) + quantity * (record.end_time - record.start_time)
+                    for start,end in work_segments(self.scenario.working_intervals, record.start_time, record.end_time):
+                        points.extend(((start, quantity), (end, -quantity)))
+                        area[resource.id] = area.get(resource.id, 0) + quantity * (end-start)
             current = 0
             for _, delta in sorted(points, key=lambda item: (item[0], item[1])):
                 current += delta

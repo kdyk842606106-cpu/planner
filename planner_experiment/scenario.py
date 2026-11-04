@@ -192,6 +192,8 @@ def scenario_from_dict(payload: dict[str, Any]) -> Scenario:
                 additional_output_state_ids=additional_outputs,
                 is_milestone=is_milestone,
                 delete_effect_state_ids=freeze_state_ids(item.get("delete_effect_state_ids", [])),
+                allowed_execution_windows=(tuple(tuple(w) for w in item['allowed_execution_windows']) if item.get('allowed_execution_windows') is not None else None),
+                exclusive_execution=item.get('exclusive_execution') is True,
             )
         )
 
@@ -304,6 +306,7 @@ def scenario_from_dict(payload: dict[str, Any]) -> Scenario:
         forbidden_state_ids=freeze_state_ids(forbidden_state_ids),
         target_activity_ids=target_activity_ids,
         input_schema_version=schema_version,
+        working_intervals=tuple(tuple(pair) for pair in payload.get('working_intervals', [])),
     )
     validate_scenario(scenario)
     return scenario
@@ -317,7 +320,15 @@ def load_scenario(path: str | Path) -> Scenario:
 
 
 def scenario_to_dict(scenario: Scenario) -> dict[str, Any]:
-    return to_primitive(scenario)
+    result = to_primitive(scenario)
+    for activity in result['activities']:
+        if not activity.get('exclusive_execution'):
+            activity.pop('exclusive_execution', None)
+        if activity.get('allowed_execution_windows') is None:
+            activity.pop('allowed_execution_windows', None)
+    if not scenario.working_intervals:
+        result.pop('working_intervals', None)
+    return result
 
 
 def scenario_hash(scenario: Scenario) -> str:
@@ -327,6 +338,12 @@ def scenario_hash(scenario: Scenario) -> str:
 
 def validate_scenario(scenario: Scenario) -> None:
     issues: list[str] = []
+    previous = None
+    for pair in scenario.working_intervals:
+        if len(pair)!=2 or any(type(n) is not int for n in pair) or pair[0]>=pair[1] or (previous is not None and pair[0]<previous):
+            issues.append('invalid working intervals')
+            break
+        previous=pair[1]
     if not scenario.activities and not scenario.external_events:
         issues.append("activities must not be empty")
     ids = [activity.id for activity in scenario.activities]

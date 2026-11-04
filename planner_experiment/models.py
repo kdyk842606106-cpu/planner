@@ -73,6 +73,8 @@ class ActivityDefinition:
     is_milestone: bool = False
     compatibility_remove_state_ids: StateIdItems = ()
     delete_effect_state_ids: StateIdItems = ()
+    allowed_execution_windows: tuple[tuple[int, int], ...] | None = None
+    exclusive_execution: bool = False
 
     @property
     def required_events(self) -> tuple[str, ...]:
@@ -155,6 +157,7 @@ class Scenario:
     forbidden_state_ids: StateIdItems = ()
     target_activity_ids: tuple[str, ...] = ()
     input_schema_version: int = 1
+    working_intervals: tuple[tuple[int, int], ...] = ()
 
     @property
     def provenance_dict(self) -> dict[str, str]:
